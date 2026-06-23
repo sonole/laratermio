@@ -34,9 +34,7 @@ class SettingsManager
 
     public function faviconUrl(): string
     {
-        $value = $this->get('favicon', '/favicon.ico');
-
-        return Upload::resolveUrl($value);
+        return Upload::resolveUrl($this->get('favicon', '/favicon.ico'));
     }
 
     public function getName(): string
