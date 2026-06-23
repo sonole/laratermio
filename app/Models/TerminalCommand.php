@@ -21,7 +21,7 @@ class TerminalCommand extends Model
     protected function casts(): array
     {
         return [
-            'is_enabled'       => 'boolean',
+            'is_enabled' => 'boolean',
             'interaction_type' => InteractionType::class,
         ];
     }

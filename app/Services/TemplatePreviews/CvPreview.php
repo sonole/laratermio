@@ -7,7 +7,6 @@ use App\Services\CvService;
 
 class CvPreview implements TemplatePreview
 {
-
     public function templatePreviewLabel(): string
     {
         return 'CV';

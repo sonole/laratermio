@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
+use App\Contracts\TemplatePreview;
 use App\Services\TemplatePreviews\ContactMessageConfirmationPreview;
 use App\Services\TemplatePreviews\ContactMessagePreview;
 use App\Services\TemplatePreviews\CvPreview;
-use App\Contracts\TemplatePreview;
 use InvalidArgumentException;
 
 class TemplatePreviewService

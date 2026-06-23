@@ -25,7 +25,7 @@ class TerminalCommandsTable
                     ->color(fn (?InteractionType $state): string => match ($state) {
                         InteractionType::Paginate => 'info',
                         InteractionType::Selector => 'warning',
-                        default                   => 'gray',
+                        default => 'gray',
                     })
                     ->placeholder('default'),
                 ToggleColumn::make('is_enabled')->label('Enabled'),

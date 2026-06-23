@@ -46,6 +46,7 @@ class TemplatePreview extends Page implements HasForms
     {
         if (blank($template)) {
             $this->previewHtml = $this->renderErrorHtml('Notice', 'No template selected.');
+
             return;
         }
 
@@ -57,6 +58,7 @@ class TemplatePreview extends Page implements HasForms
                     'Warning',
                     "The view file [$viewName] does not exist."
                 );
+
                 return;
             }
 
@@ -94,9 +96,9 @@ class TemplatePreview extends Page implements HasForms
     private function renderErrorHtml(string $label, string $message): string
     {
         return sprintf(
-            '<div style="padding: 1.5rem; color: #ef4444; font-family: sans-serif; background: #fef2f2; border: 1px solid #fee2e2; border-radius: 0.5rem;">' .
-            '<strong style="display:block; margin-bottom: 0.5rem;">%s</strong>' .
-            '%s' .
+            '<div style="padding: 1.5rem; color: #ef4444; font-family: sans-serif; background: #fef2f2; border: 1px solid #fee2e2; border-radius: 0.5rem;">'.
+            '<strong style="display:block; margin-bottom: 0.5rem;">%s</strong>'.
+            '%s'.
             '</div>',
             e($label),
             e($message)
