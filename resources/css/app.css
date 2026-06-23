@@ -1,0 +1,827 @@
+@import 'tailwindcss';
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+@import 'jquery.terminal/css/jquery.terminal.min.css';
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+@theme {
+    --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* ─── Color tokens (dark default) ──────────────────── */
+:root {
+    --bg:           #0d1117;
+    --bg-raised:    #161b22;
+    --border:       #21262d;
+    --border-muted: #30363d;
+    --border-hover: #484f58;
+    --fg:           #e2e8f0;
+    --fg-muted:     #cbd5e1;
+    --fg-dim:       #6b7280;
+    --fg-dimmer:    #4b5563;
+    --fg-faint:     #8b949e;
+    --accent:       #4ade80;
+    --accent-sub:   rgba(74, 222, 128, 0.05);
+    --accent-badge: rgba(74, 222, 128, 0.12);
+    --accent-bd:    rgba(74, 222, 128, 0.3);
+    --link:         #60a5fa;
+    --link-hover:   #93c5fd;
+    --link-sub:     rgba(96, 165, 250, 0.1);
+    --error:        #f87171;
+}
+
+[data-theme="light"] {
+    --bg:           #ffffff;
+    --bg-raised:    #f6f8fa;
+    --border:       #d0d7de;
+    --border-muted: #afb8c1;
+    --border-hover: #8c959f;
+    --fg:           #1f2328;
+    --fg-muted:     #3d444d;
+    --fg-dim:       #57606a;
+    --fg-dimmer:    #6e7781;
+    --fg-faint:     #6e7781;
+    --accent:       #2da44e;
+    --accent-sub:   rgba(45, 164, 78, 0.05);
+    --accent-badge: rgba(45, 164, 78, 0.10);
+    --accent-bd:    rgba(45, 164, 78, 0.3);
+    --link:         #0969da;
+    --link-hover:   #218bff;
+    --link-sub:     rgba(9, 105, 218, 0.1);
+    --error:        #cf222e;
+}
+
+/* ─── Base ─────────────────────────────────────────── */
+* { box-sizing: border-box; }
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    font-family: var(--font-mono);
+}
+
+/* ─── Layout ────────────────────────────────────────── */
+.app-shell {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    background: var(--bg);
+}
+
+.terminal-screen {
+    flex: 1;
+    overflow: hidden;
+    transition: flex 0.25s ease;
+}
+
+.terminal-screen.t-minimized {
+    flex: 0;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* ─── jQuery Terminal overrides ─────────────────────── */
+.terminal ul,
+.terminal li {
+    margin: 0;
+    padding: 0;
+}
+
+.terminal {
+    --color: var(--fg);
+    --background: var(--bg);
+    --font-size: 13.5px;
+    --line-height: 1.6;
+    height: 100% !important;
+    padding: 16px 20px !important;
+}
+
+.cmd .cmd-line:before, .terminal-output>div div:before {
+    content: none !important;
+    display: inline-block;
+    width: 0;
+}
+
+/* Hide scrollbars everywhere except the terminal content area */
+*,
+html,
+body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+*::-webkit-scrollbar,
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Terminal scroller: thin overlay scrollbar */
+.terminal-scroller {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-muted) transparent;
+    overscroll-behavior: contain;
+}
+
+.terminal-scroller::-webkit-scrollbar {
+    display: block !important;
+    width: 4px !important;
+}
+
+.terminal-scroller::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.terminal-scroller::-webkit-scrollbar-thumb {
+    background: var(--border-muted);
+    border-radius: 2px;
+}
+
+.terminal-scroller::-webkit-scrollbar-thumb:hover {
+    background: var(--border-hover);
+}
+
+/* ─── Nav bar ───────────────────────────────────────── */
+.terminal-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--bg-raised);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.terminal-nav-left {
+    display: flex;
+    gap: 6px;
+    margin-right: 8px;
+}
+
+/* ─── macOS window dots ─────────────────────────────── */
+.terminal-nav-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.dot-red    { background: #ff5f57; }
+.dot-yellow { background: #febc2e; }
+.dot-green  { background: #28c840; }
+
+.dot-red:hover    { background: #e0443c; }
+.dot-yellow:hover { background: #d9a012; }
+.dot-green:hover  { background: #1da332; }
+
+.dot-icon {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    opacity: 0;
+    transition: opacity 0.1s;
+    pointer-events: none;
+}
+
+/* Show all icons when hovering anywhere over the dot group */
+.terminal-nav-left:hover .dot-icon {
+    opacity: 1;
+}
+
+.terminal-nav-cmds {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+    flex-wrap: wrap;
+}
+
+.terminal-btn {
+    padding: 3px 10px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--fg-faint);
+    background: transparent;
+    border: 1px solid var(--border-muted);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.terminal-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-sub);
+}
+
+.terminal-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.terminal-nav-right {
+    margin-left: auto;
+}
+
+.terminal-cv-btn {
+    padding: 3px 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--link);
+    border: 1px solid var(--link);
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.15s;
+}
+
+.terminal-cv-btn:hover {
+    background: var(--link-sub);
+}
+
+/* ─── Terminal output blocks ────────────────────────── */
+.t-block {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    line-height: 1.7;
+}
+
+.t-header {
+    color: var(--fg-dim);
+    font-size: 12px;
+    line-height: 1;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    padding: 15px 0;
+}
+
+.t-accent  { color: var(--accent); }
+.t-label   { color: var(--link); min-width: 140px; padding-right: 12px; white-space: nowrap; }
+.t-dim     { color: var(--fg-dim); }
+.t-error   { color: var(--error); }
+.t-mt      { margin-top: 8px; display: block; }
+
+.t-paragraph {
+    color: var(--fg);
+    max-width: 750px;
+    line-height: 1.8;
+}
+
+/* ─── Tables ────────────────────────────────────────── */
+.t-table {
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 900px;
+}
+
+.t-table td {
+    padding: 3px 12px 3px 0;
+    vertical-align: top;
+    color: var(--fg);
+}
+
+.t-cmd {
+    color: var(--accent);
+    min-width: 120px;
+    white-space: nowrap;
+}
+
+/* ─── Skills (tag grid) ─────────────────────────────── */
+.t-skills-new {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.t-skill-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.t-skill-cat {
+    color: var(--link);
+    font-size: 12px;
+    min-width: 130px;
+    flex-shrink: 0;
+    padding-top: 3px;
+    white-space: nowrap;
+}
+
+.t-skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.t-skill-tag {
+    display: inline-block;
+    padding: 2px 9px;
+    font-size: 12px;
+    border: 1px solid var(--border-muted);
+    border-radius: 3px;
+    color: var(--fg-muted);
+    background: var(--bg-raised);
+    white-space: nowrap;
+}
+
+/* ─── Help ──────────────────────────────────────────── */
+.t-help-section {
+    margin-bottom: 14px;
+}
+
+.t-help-group {
+    color: var(--fg-dimmer);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+}
+
+.t-help-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.t-help-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+}
+
+.t-help-row .t-cmd {
+    min-width: 190px;
+    flex-shrink: 0;
+}
+
+.t-help-row .t-dim {
+    flex-shrink: 0;
+}
+
+/* ─── ls output ─────────────────────────────────────── */
+.t-ls {
+    display: flex;
+    flex-direction: column;
+    gap: 3cdpx;
+}
+
+.t-ls-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+}
+
+.t-ls-name {
+    min-width: 300px;
+    flex-shrink: 0;
+}
+
+/* ─── Search results ────────────────────────────────── */
+.t-search-section {
+    margin-bottom: 14px;
+}
+
+.t-search-group {
+    color: var(--fg-dimmer);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+}
+
+.t-search-result {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 3px 0;
+    flex-wrap: wrap;
+}
+
+/* ─── Contact card ──────────────────────────────────── */
+.t-contact-card {
+    border: 1px solid var(--border-muted);
+    border-radius: 6px;
+    padding: 16px 22px;
+    max-width: 460px;
+    background: var(--bg);
+}
+
+.t-contact-top {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 12px;
+}
+
+.t-contact-name {
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 0.01em;
+}
+
+.t-contact-divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 12px;
+}
+
+.t-contact-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.t-contact-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.t-contact-icon {
+    color: var(--fg-dim);
+    font-size: 12px;
+    min-width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* ─── Experience ────────────────────────────────────── */
+.t-exp-item {
+    margin-bottom: 16px;
+    padding-left: 12px;
+    border-left: 2px solid var(--border);
+}
+
+.t-exp-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.t-period {
+    color: var(--fg-dim);
+    font-size: 12px;
+    margin-left: auto;
+}
+
+.t-badge {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    background: var(--accent-badge);
+    color: var(--accent);
+    border: 1px solid var(--accent-bd);
+}
+
+.t-bullets {
+    margin: 4px 0 0 0;
+    padding-left: 16px;
+    color: var(--fg-muted);
+}
+
+.t-bullets li {
+    margin-bottom: 3px;
+    list-style: disc;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* ─── Projects list (fallback table) ────────────────── */
+.t-projects-list .t-project-row {
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.t-projects-list .t-project-row:hover td {
+    background: var(--accent-sub);
+}
+
+.t-project-n {
+    color: var(--fg-dim);
+    min-width: 36px;
+}
+
+/* ─── Project detail ────────────────────────────────── */
+.t-project-body {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+.t-project-image-wrap {
+    flex-shrink: 0;
+}
+
+.t-project-img {
+    width: 240px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    display: block;
+}
+
+.t-project-info {
+    flex: 1;
+    min-width: 260px;
+}
+
+.t-project-title {
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+/* ─── Tags & links ──────────────────────────────────── */
+.t-tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--bg-raised);
+    border: 1px solid var(--border-muted);
+    color: var(--fg-faint);
+    margin: 2px 2px 2px 0;
+}
+
+.t-links {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.t-link {
+    color: var(--link);
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.t-link:hover {
+    text-decoration: underline;
+    color: var(--link-hover);
+}
+
+/* ─── Project media panel ────────────────────────────── */
+.t-project-media {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.t-project-main-asset {
+    position: relative;
+}
+
+.t-project-img {
+    cursor: zoom-in;
+}
+
+.t-project-video-embed {
+    width: 240px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.t-project-thumbstrip {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    max-width: 240px;
+}
+
+.t-project-thumb {
+    width: 52px;
+    height: 36px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.15s, border-color 0.15s;
+}
+
+.t-project-thumb:hover {
+    opacity: 1;
+}
+
+.t-thumb-active {
+    border-color: var(--accent) !important;
+    opacity: 1;
+}
+
+.t-thumb-video {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--link);
+    background: var(--bg-raised);
+    width: 52px;
+    height: 36px;
+    border-radius: 4px;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.15s, border-color 0.15s;
+}
+
+.t-thumb-video:hover {
+    opacity: 1;
+}
+
+/* ─── Lightbox modal ─────────────────────────────────── */
+#t-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.t-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.88);
+}
+
+.t-modal-inner {
+    position: relative;
+    z-index: 1;
+}
+
+.t-modal-img {
+    max-width: 90vw;
+    max-height: 85vh;
+    border-radius: 8px;
+    display: block;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+}
+
+.t-modal-video {
+    width: min(80vw, 1280px);
+    aspect-ratio: 16 / 9;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* ─── Terminal output appear animation ──────────────── */
+@keyframes t-appear {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.t-block,
+.t-contact-card,
+.t-skills-new {
+    animation: t-appear 60ms ease-out;
+}
+
+.t-exp-item,
+.t-project-body {
+    margin-top: 20px;
+    margin-bottom: 5px;
+    animation: t-appear 60ms ease-out;
+}
+
+/* ─── Terminal flash feedback ────────────────────────── */
+@keyframes t-flash-success {
+    0%   { box-shadow: inset 0 0 0 1px rgba(74, 222, 128, 0); }
+    15%  { box-shadow: inset 0 0 0 1px rgba(74, 222, 128, 0.6), 0 0 18px rgba(74, 222, 128, 0.12); }
+    100% { box-shadow: inset 0 0 0 1px rgba(74, 222, 128, 0); }
+}
+
+@keyframes t-flash-error {
+    0%   { box-shadow: inset 0 0 0 1px rgba(248, 113, 113, 0); }
+    15%  { box-shadow: inset 0 0 0 1px rgba(248, 113, 113, 0.6), 0 0 18px rgba(248, 113, 113, 0.12); }
+    100% { box-shadow: inset 0 0 0 1px rgba(248, 113, 113, 0); }
+}
+
+@keyframes t-flash-info {
+    0%   { box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0); }
+    15%  { box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.6), 0 0 18px rgba(96, 165, 250, 0.12); }
+    100% { box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0); }
+}
+
+.t-flash-success { animation: t-flash-success 0.8s ease-out forwards; }
+.t-flash-error   { animation: t-flash-error   0.8s ease-out forwards; }
+.t-flash-info    { animation: t-flash-info    0.8s ease-out forwards; }
+
+/* ─── Fastfetch ──────────────────────────────────────── */
+.t-fastfetch {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.t-fastfetch-logo {
+    color: var(--accent);
+    font-size: 9px;
+    line-height: 1.2;
+    margin: 0;
+    overflow-x: auto;
+}
+
+.t-fastfetch-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.t-fastfetch-user {
+    color: var(--fg);
+    font-weight: bold;
+}
+
+.t-fastfetch-row {
+    line-height: 1.7;
+}
+
+/* ─── Mobile overrides (≤640px) ─────────────────────── */
+@media (max-width: 640px) {
+    html, body { overflow: clip; overscroll-behavior: none; }
+    .app-shell { height: 100dvh; }
+
+    /* Tighter font, no right padding */
+    .terminal {
+        --font-size: 12px;
+        padding: 8px 0 8px 8px !important;
+    }
+
+    /* Nav: dots + link on first row, cmd buttons wrap below */
+    .terminal-nav {
+        flex-wrap: wrap;
+        padding: 8px 10px;
+        gap: 6px;
+    }
+
+    .terminal-nav-left  { margin-right: 0; }
+    .terminal-nav-right { margin-left: auto; }
+
+    .terminal-nav-cmds {
+        order: 3;
+        width: 100%;
+        flex: none;
+    }
+
+    /* Experience: period flows left after role/company instead of pushing right */
+    .t-period { margin-left: 0; }
+
+    /* Remove fixed min-widths that force horizontal scroll */
+    .t-label            { min-width: 0; white-space: normal; }
+    .t-cmd              { min-width: 0; }
+    .t-skill-cat        { min-width: 0; white-space: normal; }
+
+    /* Help: stack cmd + description vertically, hide the — separator */
+    .t-help-row         { flex-direction: column; gap: 1px; margin-bottom: 8px; }
+    .t-help-row .t-cmd  { min-width: 0; }
+    .t-help-row .t-dim  { display: none; }
+
+    /* Stack skill rows vertically */
+    .t-skill-row {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    /* Stack project body: image above, info below */
+    .t-project-body {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .t-project-img {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 3 / 2;
+    }
+
+    .t-project-video-embed { width: 100%; }
+    .t-project-thumbstrip  { max-width: 100%; }
+    .t-project-info        { min-width: 0; }
+
+    /* Fastfetch: shrink ASCII art to fit mobile viewport */
+    .t-fastfetch-logo { font-size: 6px; }
+}
