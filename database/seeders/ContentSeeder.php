@@ -307,6 +307,20 @@ class ContentSeeder extends Seeder
                         'value' => null,
                         'sort_order' => 15,
                     ],
+                    [
+                        'key' => 'seo_og_image',
+                        'label' => 'Social share image',
+                        'type' => SettingType::File,
+                        'stub' => 'laratermio/settings/og-image.png',
+                        'sort_order' => 16,
+                    ],
+                    [
+                        'key' => 'seo_twitter_handle',
+                        'label' => 'Twitter / X handle',
+                        'type' => SettingType::String,
+                        'value' => null,
+                        'sort_order' => 17,
+                    ],
                 ],
             ],
             'experiences' => [

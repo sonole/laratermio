@@ -59,6 +59,7 @@ class Setting extends Model
                 return match ($this->key) {
                     'ascii_art' => $field->acceptedFileTypes(['text/plain']),
                     'favicon' => $field->acceptedFileTypes(['image/x-icon', 'image/vnd.microsoft.icon', 'image/png', 'image/svg+xml', 'image/gif']),
+                    'seo_og_image' => $field->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp']),
                     default => $field,
                 };
             })(),

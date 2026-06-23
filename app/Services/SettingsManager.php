@@ -37,6 +37,13 @@ class SettingsManager
         return Upload::resolveUrl($this->get('favicon', '/favicon.ico'));
     }
 
+    public function ogImageUrl(): ?string
+    {
+        return ! empty($raw = $this->get('seo_og_image'))
+            ? rtrim(config('app.url'), '/').Upload::resolveUrl($raw)
+            : null;
+    }
+
     public function getName(): string
     {
         return $this->get('name', 'Dev McDevface');
