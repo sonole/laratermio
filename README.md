@@ -133,11 +133,3 @@ MAIL_FROM_ADDRESS=you@yourdomain.com
 ADMIN_EMAIL=foobar@yourdomain.com
 ADMIN_NAME="Foo Bar"
 ```
-
-## Testing
-
-```bash
-composer run test           # pint + larastan + pest
-php artisan test --compact  # just pest
-composer run types:check    # larastan only
-```
