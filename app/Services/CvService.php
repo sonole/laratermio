@@ -14,9 +14,9 @@ use Illuminate\Support\Facades\Storage;
 
 class CvService
 {
-    public const string DISK = 'local';
+    public const string DISK = 'public';
 
-    public const string PATH = 'cv/cv.pdf';
+    public const string PATH = 'uploads/cv/cv.pdf';
 
     public function generate(): void
     {
