@@ -3,12 +3,16 @@
 namespace Database\Seeders;
 
 use App\Enums\NavItemType;
+use App\Enums\SettingKey;
+use App\Enums\SettingType;
 use App\Models\NavItem;
+use App\Models\Setting;
 use App\Models\TerminalCommand;
 use App\Models\User;
 use App\Terminal\Commands\AboutCommand;
 use App\Terminal\Commands\CdCommand;
 use App\Terminal\Commands\ClearCommand;
+use App\Terminal\Commands\CMatrixCommand;
 use App\Terminal\Commands\ContactCommand;
 use App\Terminal\Commands\EducationCommand;
 use App\Terminal\Commands\ExperienceCommand;
@@ -16,7 +20,6 @@ use App\Terminal\Commands\FastfetchCommand;
 use App\Terminal\Commands\HelpCommand;
 use App\Terminal\Commands\HistoryCommand;
 use App\Terminal\Commands\LsCommand;
-use App\Terminal\Commands\CMatrixCommand;
 use App\Terminal\Commands\OpenCommand;
 use App\Terminal\Commands\PingCommand;
 use App\Terminal\Commands\ProjectsCommand;
@@ -35,6 +38,7 @@ class SystemSeeder extends Seeder
         $this->seedAdmin();
         $this->seedTerminalCommands();
         $this->seedNavItems();
+        $this->seedSettings();
     }
 
     private function seedAdmin(): void
@@ -121,6 +125,49 @@ class SystemSeeder extends Seeder
                 'is_active' => true,
             ]
         );
+    }
+
+    private function seedSettings(): void
+    {
+        foreach ($this->settingDefinitions() as $def) {
+            $record = Setting::query()->firstOrCreate(
+                ['key' => $def['key']],
+                array_merge($def, ['value' => null])
+            );
+
+            if (! $record->wasRecentlyCreated) {
+                $record->update([
+                    'group' => $def['group'],
+                    'label' => $def['label'],
+                    'type' => $def['type'],
+                    'sort_order' => $def['sort_order'],
+                ]);
+            }
+        }
+    }
+
+    /** @return array<int, array{group: string, key: string, label: string, type: SettingType, sort_order: int}> */
+    private function settingDefinitions(): array
+    {
+        return [
+            ['group' => 'Identity', 'key' => SettingKey::Name->value, 'label' => 'Name', 'type' => SettingType::String, 'sort_order' => 0],
+            ['group' => 'Identity', 'key' => SettingKey::Role->value, 'label' => 'Role', 'type' => SettingType::String, 'sort_order' => 1],
+            ['group' => 'Identity', 'key' => SettingKey::About->value, 'label' => 'About text', 'type' => SettingType::Text, 'sort_order' => 2],
+            ['group' => 'Identity', 'key' => SettingKey::AsciiArtEnabled->value, 'label' => 'Show ASCII art', 'type' => SettingType::Switch, 'sort_order' => 3],
+            ['group' => 'Identity', 'key' => SettingKey::AsciiArt->value, 'label' => 'ASCII art', 'type' => SettingType::File, 'sort_order' => 4],
+            ['group' => 'Identity', 'key' => SettingKey::AsciiArtSize->value, 'label' => 'ASCII art size (em)', 'type' => SettingType::Number, 'sort_order' => 5],
+            ['group' => 'Identity', 'key' => SettingKey::AsciiArtColor->value, 'label' => 'ASCII art color', 'type' => SettingType::Color, 'sort_order' => 6],
+            ['group' => 'Terminal Prompt', 'key' => SettingKey::PromptUsername->value, 'label' => 'Username', 'type' => SettingType::String, 'sort_order' => 7],
+            ['group' => 'Terminal Prompt', 'key' => SettingKey::PromptUsernameColor->value, 'label' => 'Username color', 'type' => SettingType::Color, 'sort_order' => 8],
+            ['group' => 'Terminal Prompt', 'key' => SettingKey::PromptHostname->value, 'label' => 'Hostname', 'type' => SettingType::String, 'sort_order' => 9],
+            ['group' => 'Terminal Prompt', 'key' => SettingKey::PromptHostnameColor->value, 'label' => 'Hostname color', 'type' => SettingType::Color, 'sort_order' => 10],
+            ['group' => 'Terminal Prompt', 'key' => SettingKey::PromptSeparatorColor->value, 'label' => 'Separator color', 'type' => SettingType::Color, 'sort_order' => 11],
+            ['group' => 'SEO', 'key' => SettingKey::SeoTitle->value, 'label' => 'Page title', 'type' => SettingType::String, 'sort_order' => 13],
+            ['group' => 'SEO', 'key' => SettingKey::SeoDescription->value, 'label' => 'Meta description', 'type' => SettingType::Text, 'sort_order' => 14],
+            ['group' => 'SEO', 'key' => SettingKey::Favicon->value, 'label' => 'Favicon', 'type' => SettingType::File, 'sort_order' => 15],
+            ['group' => 'SEO', 'key' => SettingKey::SeoOgImage->value, 'label' => 'Social share image', 'type' => SettingType::File, 'sort_order' => 16],
+            ['group' => 'SEO', 'key' => SettingKey::SeoTwitterHandle->value, 'label' => 'Twitter / X handle', 'type' => SettingType::String, 'sort_order' => 17],
+        ];
     }
 
     /**

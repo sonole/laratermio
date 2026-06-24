@@ -18,7 +18,7 @@ class AboutCommand extends BaseCommand
             return $this->responseUnknownOption($arg);
         }
 
-        $text = e(Settings::get('about', ''));
+        $text = e(Settings::getAbout());
 
         if (blank($text)) {
             return TerminalResponse::echo($this->renderError('about text not found.'));

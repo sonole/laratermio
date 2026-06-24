@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Enums\SettingType;
+use App\Enums\SettingKey;
 use App\Models\ContactItem;
 use App\Models\Education;
 use App\Models\Experience;
@@ -50,16 +50,12 @@ class ContentSeeder extends Seeder
     protected function seedSettings(): void
     {
         Storage::disk('public')->deleteDirectory(Setting::UPLOAD_DIRECTORY);
-        Setting::query()->truncate();
 
-        foreach (data_get($this->config(), 'settings', []) as $group => $entries) {
-            foreach ($entries as $entry) {
-                if (isset($entry['stub'])) {
-                    $entry['value'] = $this->upload->copyStubToStorage($entry['stub'], Setting::UPLOAD_DIRECTORY);
-                    unset($entry['stub']);
-                }
-                Setting::query()->create(array_merge(['group' => $group], $entry));
+        foreach (data_get($this->config(), 'settings', []) as $key => $value) {
+            if (is_array($value) && isset($value['stub'])) {
+                $value = $this->upload->copyStubToStorage($value['stub'], Setting::UPLOAD_DIRECTORY);
             }
+            Setting::query()->where('key', $key)->update(['value' => $value]);
         }
     }
 
@@ -190,138 +186,23 @@ class ContentSeeder extends Seeder
     {
         return [
             'settings' => [
-                'Identity' => [
-                    [
-                        'key' => 'name',
-                        'label' => 'Name',
-                        'type' => SettingType::String,
-                        'value' => 'Dev McDevface',
-                        'sort_order' => 0,
-                    ],
-                    [
-                        'key' => 'role',
-                        'label' => 'Role',
-                        'type' => SettingType::String,
-                        'value' => 'Professional Coffee-to-Code Converter',
-                        'sort_order' => 1,
-                    ],
-                    [
-                        'key' => 'about',
-                        'label' => 'About text',
-                        'type' => SettingType::Text,
-                        'value' => 'By day I write Laravel. By night I also write Laravel. I believe every problem can be solved with a service class, a facade, and enough caffeine. My code is self-documenting — it just documents itself as "undocumented". Replace this with your actual bio through the admin panel.',
-                        'sort_order' => 2,
-                    ],
-                    [
-                        'key' => 'ascii_art_enabled',
-                        'label' => 'Show ASCII art',
-                        'type' => SettingType::Switch,
-                        'value' => '1',
-                        'sort_order' => 3,
-                    ],
-                    [
-                        'key' => 'ascii_art',
-                        'label' => 'ASCII art',
-                        'type' => SettingType::File,
-                        'stub' => 'laratermio/settings/ascii-art.txt',
-                        'sort_order' => 4,
-                    ],
-                    [
-                        'key' => 'ascii_art_size',
-                        'label' => 'ASCII art size (em)',
-                        'type' => SettingType::Number,
-                        'value' => '0.70',
-                        'sort_order' => 5,
-                    ],
-                    [
-                        'key' => 'ascii_art_color',
-                        'label' => 'ASCII art color',
-                        'type' => SettingType::Color,
-                        'value' => '#4ade80',
-                        'sort_order' => 6,
-                    ],
-                ],
-                'Terminal Prompt' => [
-                    [
-                        'key' => 'prompt_username',
-                        'label' => 'Username',
-                        'type' => SettingType::String,
-                        'value' => 'visitor',
-                        'sort_order' => 7,
-                    ],
-                    [
-                        'key' => 'prompt_username_color',
-                        'label' => 'Username color',
-                        'type' => SettingType::Color,
-                        'value' => '#4ade80',
-                        'sort_order' => 8,
-                    ],
-                    [
-                        'key' => 'prompt_hostname',
-                        'label' => 'Hostname',
-                        'type' => SettingType::String,
-                        'value' => 'laratermio',
-                        'sort_order' => 9,
-                    ],
-                    [
-                        'key' => 'prompt_hostname_color',
-                        'label' => 'Hostname color',
-                        'type' => SettingType::Color,
-                        'value' => '#60a5fa',
-                        'sort_order' => 10,
-                    ],
-                    [
-                        'key' => 'prompt_separator_color',
-                        'label' => 'Separator color',
-                        'type' => SettingType::Color,
-                        'value' => '#6b7280',
-                        'sort_order' => 11,
-                    ],
-                    [
-                        'key' => 'prompt_suffix',
-                        'label' => 'Suffix',
-                        'type' => SettingType::String,
-                        'value' => ':~$',
-                        'sort_order' => 12,
-                    ],
-                ],
-                'SEO' => [
-                    [
-                        'key' => 'seo_title',
-                        'label' => 'Page title',
-                        'type' => SettingType::String,
-                        'value' => 'Dev McDevface',
-                        'sort_order' => 13,
-                    ],
-                    [
-                        'key' => 'seo_description',
-                        'label' => 'Meta description',
-                        'type' => SettingType::Text,
-                        'value' => 'Professional Coffee-to-Code Converter. 10x developer (based on self-assessment). Currently hiring myself.',
-                        'sort_order' => 14,
-                    ],
-                    [
-                        'key' => 'favicon',
-                        'label' => 'Favicon',
-                        'type' => SettingType::File,
-                        'value' => null,
-                        'sort_order' => 15,
-                    ],
-                    [
-                        'key' => 'seo_og_image',
-                        'label' => 'Social share image',
-                        'type' => SettingType::File,
-                        'stub' => 'laratermio/settings/og-image.png',
-                        'sort_order' => 16,
-                    ],
-                    [
-                        'key' => 'seo_twitter_handle',
-                        'label' => 'Twitter / X handle',
-                        'type' => SettingType::String,
-                        'value' => null,
-                        'sort_order' => 17,
-                    ],
-                ],
+                SettingKey::Name->value => 'Dev McDevface',
+                SettingKey::Role->value => 'Professional Coffee-to-Code Converter',
+                SettingKey::About->value => 'By day I write Laravel. By night I also write Laravel. I believe every problem can be solved with a service class, a facade, and enough caffeine. My code is self-documenting — it just documents itself as "undocumented". Replace this with your actual bio through the admin panel.',
+                SettingKey::AsciiArtEnabled->value => '1',
+                SettingKey::AsciiArt->value => ['stub' => 'laratermio/settings/ascii-art.txt'],
+                SettingKey::AsciiArtSize->value => '0.70',
+                SettingKey::AsciiArtColor->value => '#4ade80',
+                SettingKey::PromptUsername->value => 'visitor',
+                SettingKey::PromptUsernameColor->value => '#4ade80',
+                SettingKey::PromptHostname->value => 'laratermio',
+                SettingKey::PromptHostnameColor->value => '#60a5fa',
+                SettingKey::PromptSeparatorColor->value => '#6b7280',
+                SettingKey::SeoTitle->value => 'Dev McDevface',
+                SettingKey::SeoDescription->value => 'Professional Coffee-to-Code Converter. 10x developer (based on self-assessment). Currently hiring myself.',
+                SettingKey::Favicon->value => null,
+                SettingKey::SeoOgImage->value => ['stub' => 'laratermio/settings/og-image.png'],
+                SettingKey::SeoTwitterHandle->value => null,
             ],
             'experiences' => [
                 [

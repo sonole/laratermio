@@ -44,12 +44,12 @@ class ContactMessageMail extends Mailable
 
         return [
             'contactMessage' => $this->contactMessage,
-            'username' => Settings::get('prompt_username', 'visitor'),
+            'username' => Settings::getPromptUsername(),
             'hostname' => $hostname,
-            'suffix' => Settings::get('prompt_suffix', ':~$'),
-            'usernameColor' => Settings::get('prompt_username_color', '#4ade80'),
-            'hostnameColor' => Settings::get('prompt_hostname_color', '#60a5fa'),
-            'sepColor' => Settings::get('prompt_separator_color', '#6b7280'),
+            'suffix' => Settings::getPromptSuffix(),
+            'usernameColor' => Settings::getPromptUsernameColor(),
+            'hostnameColor' => Settings::getpromptHostnameColor(),
+            'sepColor' => Settings::getpromptSeparatorColor(),
             'hostnameDisplay' => str_replace('.', '&zwnj;.', $hostname),
         ];
     }

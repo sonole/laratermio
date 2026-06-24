@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Enums\NavItemType;
+use App\Enums\SettingKey;
 use App\Facades\Settings;
 use App\Models\NavItem;
 use App\Models\TerminalCommand;
@@ -132,11 +133,11 @@ class Terminal extends Component
     /** @return string[] */
     private function asciiArtLines(): array
     {
-        if (! Settings::getBool('ascii_art_enabled')) {
+        if (! Settings::getBool(SettingKey::AsciiArtEnabled)) {
             return [];
         }
 
-        if (empty($value = Settings::get('ascii_art'))) {
+        if (empty($value = Settings::get(SettingKey::AsciiArt))) {
             return [];
         }
 
@@ -158,14 +159,14 @@ class Terminal extends Component
             ],
             'asciiArt' => [
                 'lines' => $this->asciiArtLines(),
-                'size' => Settings::getFloat('ascii_art_size', 0.15).'em',
-                'color' => Settings::get('ascii_art_color', '#4ade80'),
+                'size' => Settings::getFloat(SettingKey::AsciiArtSize, 0.15).'em',
+                'color' => Settings::get(SettingKey::AsciiArtColor, '#4ade80'),
             ],
             'greeting' => [
                 'name' => Settings::getName(),
                 'role' => Settings::getRole(),
             ],
-            'terminalPrompt' => Settings::getPrompt(true),
+            'terminalPrompt' => Settings::getPrompt(),
             'headerTemplate' => $this->header('__TITLE__'),
             'commandNames' => $this->commandNames(),
             'filesystemRoots' => $this->filesystemRoots(),

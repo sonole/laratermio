@@ -23,7 +23,7 @@ class WhoamiCommand extends BaseCommand
             return $this->responseUnknownOption($arg);
         }
 
-        $username = e(Settings::get('prompt_username', 'visitor'));
+        $username = e(Settings::getPromptUsername());
 
         return TerminalResponse::echo(<<<HTML
         <div class="t-block">

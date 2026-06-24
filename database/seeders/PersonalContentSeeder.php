@@ -7,11 +7,7 @@ class PersonalContentSeeder extends ContentSeeder
     protected function config(): array
     {
         return [
-            'settings' => [
-                'Identity' => [],
-                'Terminal Prompt' => [],
-                'SEO' => [],
-            ],
+            'settings' => [],
             'experiences' => [],
             'educations' => [],
             'projects' => [],

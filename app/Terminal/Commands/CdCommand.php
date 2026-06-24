@@ -47,6 +47,6 @@ class CdCommand extends BaseCommand
     {
         $this->context->setCwd($cwd);
 
-        return TerminalResponse::cd(Settings::getPromptWithCwd($cwd, true), $cwd);
+        return TerminalResponse::cd(Settings::getPrompt(cwd: $cwd), $cwd);
     }
 }

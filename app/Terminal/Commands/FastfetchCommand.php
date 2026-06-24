@@ -22,7 +22,7 @@ class FastfetchCommand extends BaseCommand
     protected function execute(?string $arg): TerminalResponse
     {
         $phpVersion = PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;
-        $username = Settings::get('prompt_username', 'visitor');
+        $username = Settings::getPromptUsername();
         $hostname = Settings::getPromptHostname();
         $identity = $username.'@'.$hostname;
 

@@ -48,7 +48,7 @@ class CvService
             'forPdf' => $forPdf,
             'name' => Settings::getName(),
             'role' => Settings::getRole(),
-            'about' => Settings::get('about'),
+            'about' => Settings::getAbout(),
             'contactItems' => ContactItem::query()
                 ->where('is_active', true)
                 ->orderBy('sort_order')

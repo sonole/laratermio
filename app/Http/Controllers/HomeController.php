@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\SettingKey;
 use App\Facades\Settings;
 use App\Models\ContactItem;
 use App\Models\Education;
@@ -18,7 +19,7 @@ class HomeController extends Controller
         $name = Settings::getName();
         $role = Settings::getRole();
         $ogImage = Settings::ogImageUrl();
-        $seoDescription = Settings::get('seo_description');
+        $seoDescription = Settings::get(SettingKey::SeoDescription);
         $canonicalUrl = rtrim(config('app.url'), '/');
 
         $contacts = ContactItem::query()
@@ -44,17 +45,17 @@ class HomeController extends Controller
         return view('home', [
             'hasFastfetch' => $registry->resolve('fastfetch') !== null,
             'seo' => [
-                'title' => Settings::get('seo_title', config('app.name')),
+                'title' => Settings::get(SettingKey::SeoTitle, config('app.name')),
                 'desc' => $seoDescription ?? '',
                 'name' => $name,
                 'role' => $role,
                 'canonical' => $canonicalUrl,
                 'og_image' => $ogImage,
-                'twitter_handle' => Settings::get('seo_twitter_handle'),
+                'twitter_handle' => Settings::get(SettingKey::SeoTwitterHandle),
                 'json_ld' => $jsonLd,
             ],
             'faviconUrl' => Settings::faviconUrl(),
-            'about' => Settings::get('about', ''),
+            'about' => Settings::getAbout(),
             'contacts' => $contacts,
             'experiences' => Experience::query()->where('is_active', true)->orderBy('sort_order')->get(),
             'projects' => Project::query()->where('is_active', true)->orderBy('sort_order')->get(),
