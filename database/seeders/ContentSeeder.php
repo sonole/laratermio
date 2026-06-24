@@ -182,6 +182,7 @@ class ContentSeeder extends Seeder
         }
     }
 
+    /** @return array<string, mixed> */
     protected function config(): array
     {
         return [

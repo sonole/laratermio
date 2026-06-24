@@ -18,6 +18,7 @@ class ContactMessagePreview implements TemplatePreview
         return 'mail.contact-message';
     }
 
+    /** @return array<string, mixed> */
     public function templatePreviewData(): array
     {
         $contactMessage = new ContactMessage([

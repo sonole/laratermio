@@ -17,6 +17,7 @@ class CvPreview implements TemplatePreview
         return 'cv';
     }
 
+    /** @return array<string, mixed> */
     public function templatePreviewData(): array
     {
         return CvService::getVariables();

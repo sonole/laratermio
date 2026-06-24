@@ -8,5 +8,6 @@ interface TemplatePreview
 
     public function templatePreviewView(): string;
 
+    /** @return array<string, mixed> */
     public function templatePreviewData(): array;
 }

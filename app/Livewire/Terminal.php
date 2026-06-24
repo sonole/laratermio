@@ -58,6 +58,7 @@ class Terminal extends Component
         return $response->toArray();
     }
 
+    /** @return array<int, array<string, mixed>> */
     #[Renderless]
     public function getStructuredData(string $type): array
     {
@@ -152,6 +153,7 @@ class Terminal extends Component
 
     public function render(): View
     {
+        /** @phpstan-ignore argument.type */
         return view('livewire.terminal', [
             'nav' => [
                 'commandItems' => $this->navCommandItems(),

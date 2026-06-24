@@ -10,7 +10,7 @@ use InvalidArgumentException;
 
 class TemplatePreviewService
 {
-    /** @return array<string, TemplatePreview> */
+    /** @return array<string, class-string<TemplatePreview>> */
     public static function templates(): array
     {
         return [
@@ -36,11 +36,13 @@ class TemplatePreviewService
         return static::make($key)->templatePreviewView();
     }
 
+    /** @return array<string, mixed> */
     public static function data(string $key): array
     {
         return static::make($key)->templatePreviewData();
     }
 
+    /** @return array<string, string> */
     public static function options(): array
     {
         $result = [];

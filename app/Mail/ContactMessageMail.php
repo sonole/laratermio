@@ -38,6 +38,7 @@ class ContactMessageMail extends Mailable
         return [];
     }
 
+    /** @return array<string, mixed> */
     public function getVariables(): array
     {
         $hostname = Settings::getPromptHostname();

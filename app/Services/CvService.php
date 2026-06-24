@@ -42,6 +42,7 @@ class CvService
         );
     }
 
+    /** @return array<string, mixed> */
     public static function getVariables(bool $forPdf = false): array
     {
         return [
