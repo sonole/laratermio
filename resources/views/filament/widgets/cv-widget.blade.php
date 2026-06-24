@@ -33,7 +33,7 @@
                     icon="heroicon-o-arrow-path"
                     wire:loading.class="opacity-50"
                 >
-                    <span wire:loading.remove wire:target="generate">Regenerate CV</span>
+                    <span wire:loading.remove wire:target="generate">{{ $cvExists ? 'Regenerate CV' : 'Generate CV' }}</span>
                     <span wire:loading wire:target="generate">Generating…</span>
                 </x-filament::button>
             </div>
