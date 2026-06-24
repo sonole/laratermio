@@ -15,7 +15,13 @@ class SettingsManager
     /** @return Collection<string, string|null> */
     private function all(): Collection
     {
-        return $this->cache ??= Setting::query()->pluck('value', 'key');
+        if ($this->cache !== null) {
+            return $this->cache; // @phpstan-ignore return.type
+        }
+
+        $this->cache = Setting::query()->pluck('value', 'key');
+
+        return $this->cache;
     }
 
     public function get(SettingKey $key, ?string $default = null): ?string

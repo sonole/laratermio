@@ -180,11 +180,12 @@ class ProjectsCommand extends BaseCommand implements HasStructuredData
         $first = $assets[0];
         $mainImgStyle = $first['type'] === 'image' ? '' : ' style="display:none"';
         $mainVidStyle = $first['type'] !== 'image' ? '' : ' style="display:none"';
-        $mainSrc = $first['src'] ?? '';
-        $mainFull = $first['full'] ?? $mainSrc;
+        $mainSrc = data_get($first, 'src', '');
+        $mainEmbed = data_get($first, 'embed', '');
+        $mainFull = data_get($first, 'full', $mainSrc);
         $firstVideoInner = match ($first['type']) {
-            'video' => '<video src="'.$first['src'].'" controls width="100%" height="160" style="border-radius:6px;display:block"></video>',
-            'youtube' => '<iframe src="'.$first['embed'].'" width="100%" height="160" frameborder="0" allowfullscreen style="display:block"></iframe>',
+            'video' => '<video src="'.$mainSrc.'" controls width="100%" height="160" style="border-radius:6px;display:block"></video>',
+            'youtube' => '<iframe src="'.$mainEmbed.'" width="100%" height="160" frameborder="0" allowfullscreen style="display:block"></iframe>',
             default => '',
         };
 
@@ -192,12 +193,15 @@ class ProjectsCommand extends BaseCommand implements HasStructuredData
         if (count($assets) > 1) {
             foreach ($assets as $i => $asset) {
                 $active = $i === 0 ? ' t-thumb-active' : '';
+                $assetSrc = data_get($asset, 'src', '');
+                $assetFull = data_get($asset, 'full', '');
+                $assetEmbed = data_get($asset, 'embed', '');
                 if ($asset['type'] === 'image') {
-                    $thumbsHtml .= '<img class="t-project-thumb'.$active.'" data-type="image" data-src="'.$asset['src'].'" data-full="'.$asset['full'].'" src="'.$asset['src'].'" loading="lazy">';
+                    $thumbsHtml .= '<img class="t-project-thumb'.$active.'" data-type="image" data-src="'.$assetSrc.'" data-full="'.$assetFull.'" src="'.$assetSrc.'" loading="lazy">';
                 } elseif ($asset['type'] === 'video') {
-                    $thumbsHtml .= '<div class="t-project-thumb t-thumb-video'.$active.'" data-type="video" data-src="'.$asset['src'].'">&#9654;</div>';
+                    $thumbsHtml .= '<div class="t-project-thumb t-thumb-video'.$active.'" data-type="video" data-src="'.$assetSrc.'">&#9654;</div>';
                 } else {
-                    $thumbsHtml .= '<div class="t-project-thumb t-thumb-video'.$active.'" data-type="youtube" data-embed="'.$asset['embed'].'">&#9654;</div>';
+                    $thumbsHtml .= '<div class="t-project-thumb t-thumb-video'.$active.'" data-type="youtube" data-embed="'.$assetEmbed.'">&#9654;</div>';
                 }
             }
             $thumbsHtml = '<div class="t-project-thumbstrip">'.$thumbsHtml.'</div>';
@@ -206,8 +210,8 @@ class ProjectsCommand extends BaseCommand implements HasStructuredData
         return <<<HTML
         <div class="t-project-media">
             <div class="t-project-main-asset">
-                <img class="t-project-img" src="{$mainSrc}" data-full="{$mainFull}" alt="{$escapedName}" loading="lazy"{$mainImgStyle}>
-                <div class="t-project-video-embed"{$mainVidStyle}>{$firstVideoInner}</div>
+                <img class="t-project-img" src="$mainSrc" data-full="$mainFull" alt="$escapedName" loading="lazy"$mainImgStyle>
+                <div class="t-project-video-embed"$mainVidStyle>$firstVideoInner</div>
             </div>
             {$thumbsHtml}
         </div>

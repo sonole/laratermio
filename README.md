@@ -133,3 +133,14 @@ MAIL_FROM_ADDRESS=you@yourdomain.com
 ADMIN_EMAIL=foobar@yourdomain.com
 ADMIN_NAME="Foo Bar"
 ```
+
+### Running checks
+
+```bash
+# All checks — lint, static analysis, tests
+./vendor/bin/sail composer test
+# Static analysis (PHPStan / Larastan)
+./vendor/bin/sail composer types:check
+# or directly:
+./vendor/bin/sail bin phpstan analyse --memory-limit 1G
+```

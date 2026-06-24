@@ -45,7 +45,9 @@ class NavItem extends Model
     public function getDisplayLabel(): string
     {
         return match ($this->type) {
-            NavItemType::Command => $this->terminalCommand?->display_label ?? '',
+            NavItemType::Command => $this->terminalCommand !== null
+                ? ($this->terminalCommand->display_label ?? '')
+                : '',
             NavItemType::Cv => $this->label ?? 'cv',
             default => $this->label ?? '',
         };

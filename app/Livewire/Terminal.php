@@ -148,7 +148,6 @@ class Terminal extends Component
 
     public function render(): View
     {
-        /** @phpstan-ignore argument.type */
         return view('livewire.terminal', [
             'nav' => [
                 'commandItems' => $this->navCommandItems(),

@@ -664,9 +664,12 @@
                 <div class="term-tab">laratermio — bash</div>
             </div>
             <div class="term-body">
-                <div><span class="t-prompt">$&nbsp;</span><span class="t-cmd">composer run test</span><span class="t-out">&nbsp;&nbsp;&nbsp;# pint + phpstan + pest</span></div>
-                <div><span class="t-prompt">$&nbsp;</span><span class="t-cmd">php artisan test --compact</span><span class="t-out">&nbsp;&nbsp;# just pest</span></div>
-                <div><span class="t-prompt">$&nbsp;</span><span class="t-cmd">composer run types:check</span><span class="t-out">&nbsp;&nbsp;&nbsp;# larastan only</span></div>
+                <div><span class="t-prompt">$&nbsp;</span><span class="t-cmd">sail composer run test</span><span class="t-out">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# pint + phpstan + pest</span></div>
+                <div><span class="t-prompt">$&nbsp;</span><span class="t-cmd">sail artisan test --compact</span><span class="t-out">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# just pest</span></div>
+                <div><span class="t-prompt">$&nbsp;</span><span class="t-cmd">sail composer run types:check</span><span class="t-out">&nbsp;&nbsp;# larastan only</span></div>
+                <div class="t-out">&nbsp;</div>
+                <div><span class="t-out"># or directly:</span></div>
+                <div><span class="t-prompt">$&nbsp;</span><span class="t-cmd">sail bin phpstan analyse --memory-limit 1G</span></div>
             </div>
         </div>
     </div>

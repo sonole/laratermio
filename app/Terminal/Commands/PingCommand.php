@@ -60,7 +60,7 @@ class PingCommand extends BaseCommand
         HTML);
     }
 
-    /** @return array<int, string> */
+    /** @return non-empty-array<int, string> */
     private function generateTimes(bool $local): array
     {
         $times = [];
@@ -97,6 +97,7 @@ class PingCommand extends BaseCommand
         );
     }
 
+    /** @param array<int, string> $values */
     private function stddev(array $values): float
     {
         $floats = array_map('floatval', $values);
@@ -106,6 +107,7 @@ class PingCommand extends BaseCommand
         return sqrt($variance);
     }
 
+    /** @return array<int, string> */
     private function getHosts(): array
     {
         $hosts = ['127.0.0.1', 'localhost'];

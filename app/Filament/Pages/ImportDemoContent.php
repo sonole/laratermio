@@ -14,6 +14,7 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Config;
 use UnitEnum;
 
+/** @property-read Schema $form */
 class ImportDemoContent extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowDownTray;

@@ -4,17 +4,14 @@ namespace App\Filament\Pages;
 
 use App\Services\TemplatePreviewService;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\View;
 
-class TemplatePreview extends Page implements HasForms
+/** @property-read Schema $form */
+class TemplatePreview extends Page
 {
-    use InteractsWithForms;
-
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::DocumentMagnifyingGlass;
 
     protected static ?int $navigationSort = 50;
