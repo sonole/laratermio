@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('command_class');
             $table->string('display_label');
             $table->string('description')->nullable();
-            $table->boolean('is_enabled')->default(true);
+            $table->boolean('is_active')->default(true);
             $table->enum('interaction_type', array_column(InteractionType::cases(), 'value'))->nullable();
             $table->timestamps();
         });

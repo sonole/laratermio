@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\SettingType;
+use App\Models\Concerns\HasOrder;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
@@ -23,6 +24,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['group', 'key', 'label', 'type', 'value', 'sort_order'])]
 class Setting extends Model
 {
+    use HasOrder;
+
     public const string UPLOAD_DIRECTORY = 'uploads/settings';
 
     protected function casts(): array

@@ -23,8 +23,7 @@ class HelpCommand extends BaseCommand
             return $this->responseUnknownOption($arg);
         }
 
-        $records = TerminalCommand::query()
-            ->where('is_enabled', true)
+        $records = TerminalCommand::active()
             ->orderBy('name')
             ->get();
 

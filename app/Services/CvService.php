@@ -50,26 +50,11 @@ class CvService
             'name' => Settings::getName(),
             'role' => Settings::getRole(),
             'about' => Settings::getAbout(),
-            'contactItems' => ContactItem::query()
-                ->where('is_active', true)
-                ->orderBy('sort_order')
-                ->get(),
-            'experiences' => Experience::query()
-                ->where('is_active', true)
-                ->orderBy('sort_order')
-                ->get(),
-            'educations' => Education::query()
-                ->where('is_active', true)
-                ->orderBy('sort_order')
-                ->get(),
-            'skillCategories' => SkillCategory::query()
-                ->where('is_active', true)
-                ->orderBy('sort_order')
-                ->get(),
-            'projects' => Project::query()
-                ->where('is_active', true)
-                ->orderBy('sort_order')
-                ->get(),
+            'contactItems' => ContactItem::activeOrdered()->get(),
+            'experiences' => Experience::activeOrdered()->get(),
+            'educations' => Education::activeOrdered()->get(),
+            'skillCategories' => SkillCategory::activeOrdered()->get(),
+            'projects' => Project::activeOrdered()->get(),
         ];
     }
 }

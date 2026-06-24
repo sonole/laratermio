@@ -48,8 +48,7 @@ class ManageSettings extends Page
     {
         // Order by sort_order only so groups appear in the intended sequence
         // (Identity 0-9, About 10-19, Terminal 19-29, SEO 30+)
-        $sections = Setting::query()
-            ->orderBy('sort_order')
+        $sections = Setting::ordered()
             ->get()
             ->groupBy('group')
             ->map(fn ($settings, string $group) => Section::make($group)

@@ -14,7 +14,7 @@ class CommandRegistry
     {
         $record = TerminalCommand::query()->where('name', $name)->first();
 
-        if (! $record || ! $record->is_enabled) {
+        if (! $record || ! $record->is_active) {
             return null;
         }
 
@@ -29,7 +29,7 @@ class CommandRegistry
             return null;
         }
 
-        if (! $record->is_enabled) {
+        if (! $record->is_active) {
             return TerminalResponse::echo($this->renderNotFound($name));
         }
 

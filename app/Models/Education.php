@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasActiveOrder;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +23,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['title', 'institution', 'start_date', 'end_date', 'is_certification', 'description', 'certificate_url', 'sort_order', 'is_active'])]
 class Education extends Model
 {
+    use HasActiveOrder;
+
     protected $table = 'educations';
 
     protected function casts(): array

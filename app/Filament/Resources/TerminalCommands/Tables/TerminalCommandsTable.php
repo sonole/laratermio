@@ -28,7 +28,7 @@ class TerminalCommandsTable
                         default => 'gray',
                     })
                     ->placeholder('default'),
-                ToggleColumn::make('is_enabled')->label('Enabled'),
+                ToggleColumn::make('is_active')->label('Active'),
             ])
             ->filters([])
             ->recordActions([

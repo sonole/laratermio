@@ -75,7 +75,7 @@ class SystemSeeder extends Seeder
                     'command_class' => $data['command_class'],
                     'display_label' => $data['display_label'],
                     'description' => $data['description'] ?? null,
-                    'is_enabled' => true,
+                    'is_active' => true,
                     'interaction_type' => $data['interaction_type'],
                 ]
             );

@@ -40,9 +40,7 @@ class ProjectsCommand extends BaseCommand implements HasStructuredData
 
     public function structuredData(): array
     {
-        return Project::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
+        return Project::activeOrdered()
             ->get()
             ->values()
             ->map(fn (Project $project, int $i) => [
@@ -56,7 +54,7 @@ class ProjectsCommand extends BaseCommand implements HasStructuredData
 
     private function resolveInteraction(): TerminalResponse
     {
-        if (! Project::query()->where('is_active', true)->exists()) {
+        if (! Project::active()->exists()) {
             return TerminalResponse::echo($this->renderError('no projects entries found.'));
         }
 
@@ -71,7 +69,7 @@ class ProjectsCommand extends BaseCommand implements HasStructuredData
 
     private function renderAll(): string
     {
-        $projects = Project::query()->where('is_active', true)->orderBy('sort_order')->get();
+        $projects = Project::activeOrdered()->get();
 
         if ($projects->isEmpty()) {
             return $this->renderError('no projects entries found.');
@@ -89,7 +87,7 @@ class ProjectsCommand extends BaseCommand implements HasStructuredData
 
     private function renderByNumber(int $n): string
     {
-        $projects = Project::query()->where('is_active', true)->orderBy('sort_order')->get();
+        $projects = Project::activeOrdered()->get();
 
         if ($n < 1 || $n > $projects->count()) {
             $max = $projects->count();

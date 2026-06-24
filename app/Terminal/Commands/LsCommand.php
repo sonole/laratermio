@@ -84,9 +84,7 @@ class LsCommand extends BaseCommand
 
     private function renderProjects(): string
     {
-        $rows = Project::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
+        $rows = Project::activeOrdered()
             ->get()
             ->map(fn (Project $p) => '<div class="t-ls-row"><span class="t-accent t-ls-name">'.e($p->name).'</span><span class="t-dim">'.e($p->subtitle ?? '').'</span></div>')
             ->implode('');
@@ -100,9 +98,7 @@ class LsCommand extends BaseCommand
 
     private function renderSkills(): string
     {
-        $rows = SkillCategory::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
+        $rows = SkillCategory::activeOrdered()
             ->get()
             ->map(fn (SkillCategory $c) => '<div class="t-ls-row"><span class="t-accent t-ls-name">'.e($c->name).'</span><span class="t-dim">'.e(implode(', ', array_slice($c->items ?? [], 0, 4))).'…</span></div>')
             ->implode('');
@@ -116,9 +112,7 @@ class LsCommand extends BaseCommand
 
     private function renderExperience(): string
     {
-        $rows = Experience::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
+        $rows = Experience::activeOrdered()
             ->get()
             ->map(fn (Experience $e) => '<div class="t-ls-row"><span class="t-accent t-ls-name">'.e($e->title).'</span><span class="t-dim">'.e($e->company).' &mdash; '.e($e->period).'</span></div>')
             ->implode('');
@@ -132,9 +126,7 @@ class LsCommand extends BaseCommand
 
     private function renderEducation(): string
     {
-        $rows = Education::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
+        $rows = Education::activeOrdered()
             ->get()
             ->map(fn (Education $e) => '<div class="t-ls-row"><span class="t-accent t-ls-name">'.e($e->title).'</span><span class="t-dim">'.e($e->institution).' &mdash; '.e($e->period).'</span></div>')
             ->implode('');
@@ -148,9 +140,7 @@ class LsCommand extends BaseCommand
 
     private function renderContact(): string
     {
-        $rows = ContactItem::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
+        $rows = ContactItem::activeOrdered()
             ->get()
             ->map(fn (ContactItem $c) => '<div class="t-ls-row"><span class="t-accent t-ls-name">'.e($c->label).'</span><span class="t-dim">'.e($c->url ?? '').'</span></div>')
             ->implode('');

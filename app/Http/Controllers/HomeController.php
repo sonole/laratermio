@@ -22,10 +22,7 @@ class HomeController extends Controller
         $seoDescription = Settings::get(SettingKey::SeoDescription);
         $canonicalUrl = rtrim(config('app.url'), '/');
 
-        $contacts = ContactItem::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->get();
+        $contacts = ContactItem::activeOrdered()->get();
 
         $jsonLd = array_filter([
             '@context' => 'https://schema.org',
@@ -57,10 +54,10 @@ class HomeController extends Controller
             'faviconUrl' => Settings::faviconUrl(),
             'about' => Settings::getAbout(),
             'contacts' => $contacts,
-            'experiences' => Experience::query()->where('is_active', true)->orderBy('sort_order')->get(),
-            'projects' => Project::query()->where('is_active', true)->orderBy('sort_order')->get(),
-            'skillCategories' => SkillCategory::query()->where('is_active', true)->orderBy('sort_order')->get(),
-            'educations' => Education::query()->where('is_active', true)->orderBy('sort_order')->get(),
+            'experiences' => Experience::activeOrdered()->get(),
+            'projects' => Project::activeOrdered()->get(),
+            'skillCategories' => SkillCategory::activeOrdered()->get(),
+            'educations' => Education::activeOrdered()->get(),
         ]);
     }
 }

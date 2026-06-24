@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasActiveOrder;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -21,6 +22,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['title', 'company', 'start_date', 'end_date', 'is_current', 'bullets', 'sort_order', 'is_active'])]
 class Experience extends Model
 {
+    use HasActiveOrder;
+
     protected function casts(): array
     {
         return [

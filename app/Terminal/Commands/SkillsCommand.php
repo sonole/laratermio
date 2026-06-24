@@ -18,10 +18,7 @@ class SkillsCommand extends BaseCommand
             return $this->responseUnknownOption($arg);
         }
 
-        $categories = SkillCategory::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->get();
+        $categories = SkillCategory::activeOrdered()->get();
 
         if ($categories->isEmpty()) {
             return TerminalResponse::echo($this->renderError('no skills entries found.'));

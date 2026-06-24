@@ -60,9 +60,7 @@ class SearchCommand extends BaseCommand
     /** @return Collection<int, Experience> */
     private function matchExperiences(string $query): Collection
     {
-        return Experience::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
+        return Experience::activeOrdered()
             ->get()
             ->filter(fn (Experience $exp) => $this->matches($exp->title, $query) ||
                 $this->matches($exp->company, $query) ||
@@ -73,9 +71,7 @@ class SearchCommand extends BaseCommand
     /** @return Collection<int, Project> */
     private function matchProjects(string $query): Collection
     {
-        return Project::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
+        return Project::activeOrdered()
             ->get()
             ->filter(fn (Project $project) => $this->matches($project->name, $query) ||
                 $this->matches($project->subtitle ?? '', $query) ||
@@ -87,9 +83,7 @@ class SearchCommand extends BaseCommand
     /** @return Collection<int, SkillCategory> */
     private function matchSkills(string $query): Collection
     {
-        return SkillCategory::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
+        return SkillCategory::activeOrdered()
             ->get()
             ->filter(fn (SkillCategory $cat) => $this->matches($cat->name, $query) ||
                 collect($cat->items ?? [])->contains(fn ($i) => $this->matches($i, $query))
@@ -197,9 +191,7 @@ class SearchCommand extends BaseCommand
     /** @return Collection<int, Education> */
     private function matchEducations(string $query): Collection
     {
-        return Education::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
+        return Education::activeOrdered()
             ->get()
             ->filter(fn (Education $edu) => $this->matches($edu->title, $query) ||
                 $this->matches($edu->institution, $query) ||

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\NavItemType;
+use App\Models\Concerns\HasActiveOrder;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,6 +23,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['terminal_command_id', 'command_args', 'label', 'url', 'target', 'type', 'sort_order', 'is_active'])]
 class NavItem extends Model
 {
+    use HasActiveOrder;
+
     public const string UPLOAD_DIRECTORY = 'uploads/nav-items';
 
     protected function casts(): array
@@ -32,6 +35,7 @@ class NavItem extends Model
         ];
     }
 
+    /** @return BelongsTo<TerminalCommand, $this> */
     public function terminalCommand(): BelongsTo
     {
         return $this->belongsTo(TerminalCommand::class);

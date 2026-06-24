@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\InteractionType;
+use App\Models\Concerns\HasActive;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -12,16 +13,18 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $command_class
  * @property string $display_label
  * @property string|null $description
- * @property bool $is_enabled
+ * @property bool $is_active
  * @property InteractionType|null $interaction_type
  */
-#[Fillable(['name', 'command_class', 'display_label', 'description', 'is_enabled', 'interaction_type'])]
+#[Fillable(['name', 'command_class', 'display_label', 'description', 'is_active', 'interaction_type'])]
 class TerminalCommand extends Model
 {
+    use HasActive;
+
     protected function casts(): array
     {
         return [
-            'is_enabled' => 'boolean',
+            'is_active' => 'boolean',
             'interaction_type' => InteractionType::class,
         ];
     }

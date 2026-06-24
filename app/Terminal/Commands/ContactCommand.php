@@ -37,7 +37,7 @@ class ContactCommand extends BaseCommand
 
     protected function executeContactItems(): TerminalResponse
     {
-        $items = ContactItem::query()->where('is_active', true)->orderBy('sort_order')->get();
+        $items = ContactItem::activeOrdered()->get();
 
         if ($items->isEmpty()) {
             return TerminalResponse::echo($this->renderError('no contact entries found.'));

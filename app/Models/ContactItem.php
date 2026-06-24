@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasActiveOrder;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -16,6 +17,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['icon', 'label', 'url', 'sort_order', 'is_active'])]
 class ContactItem extends Model
 {
+    use HasActiveOrder;
+
     protected function casts(): array
     {
         return [

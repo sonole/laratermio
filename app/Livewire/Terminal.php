@@ -74,8 +74,7 @@ class Terminal extends Component
     /** @return string[] */
     public function commandNames(): array
     {
-        return TerminalCommand::query()
-            ->where('is_enabled', true)
+        return TerminalCommand::active()
             ->pluck('name')
             ->sort()
             ->values()
@@ -93,11 +92,9 @@ class Terminal extends Component
      */
     public function navCommandItems(): array
     {
-        return NavItem::query()
+        return NavItem::activeOrdered()
             ->with('terminalCommand')
             ->where('type', NavItemType::Command)
-            ->where('is_active', true)
-            ->orderBy('sort_order')
             ->get()
             ->map(fn (NavItem $item) => [
                 'exec' => ($item->terminalCommand->name).($item->command_args ? ' '.$item->command_args : ''),
@@ -111,10 +108,8 @@ class Terminal extends Component
      */
     public function navLinkItems(): array
     {
-        $items = NavItem::query()
+        $items = NavItem::activeOrdered()
             ->whereIn('type', [NavItemType::Link, NavItemType::Cv])
-            ->where('is_active', true)
-            ->orderBy('sort_order')
             ->get();
 
         $cvExists = $items->contains('type', NavItemType::Cv)

@@ -19,7 +19,7 @@ class TerminalCommandForm
             ->components([
                 Section::make()
                     ->schema([
-                        Toggle::make('is_enabled')->label('Enabled')->default(true),
+                        Toggle::make('is_active')->label('Active')->default(true),
                         Grid::make()->schema([
                             TextInput::make('name')
                                 ->required()

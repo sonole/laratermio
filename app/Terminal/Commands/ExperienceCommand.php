@@ -40,9 +40,7 @@ class ExperienceCommand extends BaseCommand implements HasStructuredData
 
     public function structuredData(): array
     {
-        return Experience::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
+        return Experience::activeOrdered()
             ->get()
             ->values()
             ->map(fn (Experience $exp, int $i) => [
@@ -56,7 +54,7 @@ class ExperienceCommand extends BaseCommand implements HasStructuredData
 
     private function resolveInteraction(): TerminalResponse
     {
-        if (! Experience::query()->where('is_active', true)->exists()) {
+        if (! Experience::active()->exists()) {
             return TerminalResponse::echo($this->renderError('no experience entries found.'));
         }
 
@@ -71,10 +69,7 @@ class ExperienceCommand extends BaseCommand implements HasStructuredData
 
     private function renderAll(): string
     {
-        $items = Experience::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->get();
+        $items = Experience::activeOrdered()->get();
 
         if ($items->isEmpty()) {
             return $this->renderError('no experience entries found.');
@@ -93,7 +88,7 @@ class ExperienceCommand extends BaseCommand implements HasStructuredData
 
     private function renderByNumber(int $n): string
     {
-        $items = Experience::query()->where('is_active', true)->orderBy('sort_order')->get();
+        $items = Experience::activeOrdered()->get();
 
         if ($n < 1 || $n > $items->count()) {
             $max = $items->count();

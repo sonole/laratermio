@@ -18,10 +18,7 @@ class EducationCommand extends BaseCommand
             return $this->responseUnknownOption($arg);
         }
 
-        $all = Education::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->get();
+        $all = Education::activeOrdered()->get();
 
         if ($all->isEmpty()) {
             return TerminalResponse::echo($this->renderError('no education entries found.'));

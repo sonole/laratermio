@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasActiveOrder;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,6 +16,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['name', 'items', 'sort_order', 'is_active'])]
 class SkillCategory extends Model
 {
+    use HasActiveOrder;
+
     protected function casts(): array
     {
         return [

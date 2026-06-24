@@ -20,11 +20,9 @@ class OpenCommand extends BaseCommand
 
     protected function execute(?string $arg): TerminalResponse
     {
-        $items = ContactItem::query()
-            ->where('is_active', true)
+        $items = ContactItem::activeOrdered()
             ->whereNotNull('url')
             ->where('url', '!=', '')
-            ->orderBy('sort_order')
             ->get();
 
         if ($arg === null) {
