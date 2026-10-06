@@ -48,6 +48,33 @@
                 The live changes you make to your profile metrics will not reflect on your public CV link until you hit <strong>Regenerate CV</strong>.
             </p>
 
+            @if ($this->extraLanguages())
+                <div class="rounded-lg border border-gray-200 dark:border-white/10 p-4 space-y-3">
+                    <div>
+                        <p class="font-medium text-gray-900 dark:text-white">Download in another language</p>
+                        <p class="text-xs">
+                            The public CV is always in {{ $this->baseLanguage() }}. Other languages are generated on the spot from your current content and downloaded to this computer. They are never stored or published.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        @foreach ($this->extraLanguages() as $locale => $name)
+                            <x-filament::button
+                                wire:click="download('{{ $locale }}')"
+                                wire:loading.attr="disabled"
+                                wire:loading.class="opacity-50"
+                                wire:target="download('{{ $locale }}')"
+                                icon="heroicon-o-arrow-down-tray"
+                                color="gray"
+                                size="sm"
+                            >
+                                {{ $name }}
+                            </x-filament::button>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             @if ($cvExists)
                 <div class="flex items-start gap-3 rounded-lg bg-amber-50 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200/50 dark:border-amber-900/50 text-xs">
                     <div style="margin-top: 0.45rem;">

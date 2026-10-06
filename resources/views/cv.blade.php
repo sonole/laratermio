@@ -1,5 +1,6 @@
+@use('App\Support\Text')
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ $locale }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,7 +33,7 @@
         }
 
         body {
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: {!! $fontStack !!};
             font-size: 10pt;
             color: #000;
             background: #fff;
@@ -54,7 +55,6 @@
             font-size: 11pt;
             font-weight: normal;
             letter-spacing: 1pt;
-            text-transform: uppercase;
             color: #444;
             margin-top: 2pt;
         }
@@ -73,7 +73,6 @@
         .section-title {
             font-size: 10.5pt;
             font-weight: bold;
-            text-transform: uppercase;
             letter-spacing: 0.8pt;
             border-bottom: 1pt solid #000;
             padding-bottom: 2pt;
@@ -151,7 +150,7 @@
 
     {{-- Header --}}
     <div class="header-name">{{ $name }}</div>
-    <div class="header-role">{{ $role }}</div>
+    <div class="header-role">{{ Text::upper($role, $locale) }}</div>
 
     @if ($contactItems->isNotEmpty())
         @php
@@ -222,7 +221,7 @@
     {{-- Objective --}}
     @if ($about)
         <div class="section">
-            <div class="section-title">Objective</div>
+            <div class="section-title">{{ Text::upper($sectionTitles['objective'], $locale) }}</div>
             <p style="font-size:9.5pt;">{{ $about }}</p>
         </div>
     @endif
@@ -230,7 +229,7 @@
     {{-- Experience --}}
     @if ($experiences->isNotEmpty())
         <div class="section">
-            <div class="section-title">Experience</div>
+            <div class="section-title">{{ Text::upper($sectionTitles['experience'], $locale) }}</div>
             @foreach ($experiences as $experience)
                 <div class="entry">
                     <div class="entry-header">
@@ -252,7 +251,7 @@
     {{-- Education --}}
     @if ($educations->isNotEmpty())
         <div class="section">
-            <div class="section-title">Education</div>
+            <div class="section-title">{{ Text::upper($sectionTitles['education'], $locale) }}</div>
             @foreach ($educations as $education)
                 <div class="entry">
                     <div class="entry-header">
@@ -270,7 +269,7 @@
     {{-- Skills --}}
     @if ($skillCategories->isNotEmpty())
         <div class="section">
-            <div class="section-title">Skills</div>
+            <div class="section-title">{{ Text::upper($sectionTitles['skills'], $locale) }}</div>
             <table class="skills-table">
                 @foreach ($skillCategories as $category)
                     @if (!empty($category->items))
@@ -287,7 +286,7 @@
     {{-- Projects --}}
     @if ($projects->isNotEmpty())
         <div class="section">
-            <div class="section-title">Projects</div>
+            <div class="section-title">{{ Text::upper($sectionTitles['projects'], $locale) }}</div>
             @foreach ($projects as $project)
                 <div class="entry">
                     <div class="entry-header">

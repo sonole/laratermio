@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Educations\Schemas;
 
+use App\Filament\Support\TranslationFields;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -36,6 +37,11 @@ class EducationForm
                         TextInput::make('description')->label('Description')->placeholder('Major, department, notes…'),
                         TextInput::make('certificate_url')->label('Certificate URL')->url()->placeholder('https://…'),
                     ]),
+                ...TranslationFields::make([
+                    'title' => fn (string $name) => TextInput::make($name)->label('Title'),
+                    'institution' => fn (string $name) => TextInput::make($name)->label('Institution'),
+                    'description' => fn (string $name) => TextInput::make($name)->label('Description'),
+                ]),
             ]);
     }
 }

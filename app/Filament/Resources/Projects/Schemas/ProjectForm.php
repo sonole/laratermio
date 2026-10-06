@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Projects\Schemas;
 
+use App\Filament\Support\TranslationFields;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
@@ -71,6 +72,15 @@ class ProjectForm
                             ->reorderable()
                             ->addActionLabel('Add technology'),
                     ]),
+                ...TranslationFields::make([
+                    'name' => fn (string $name) => TextInput::make($name)->label('Name'),
+                    'subtitle' => fn (string $name) => TextInput::make($name)->label('Subtitle'),
+                    'bullets' => fn (string $name) => Repeater::make($name)
+                        ->label('Bullet points')
+                        ->simple(Textarea::make('value')->rows(3))
+                        ->reorderable()
+                        ->addActionLabel('Add bullet'),
+                ]),
             ]);
     }
 }

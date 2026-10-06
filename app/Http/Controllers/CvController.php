@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Facades\Settings;
 use App\Services\CvService;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
@@ -17,7 +16,7 @@ class CvController extends Controller
             abort(404, 'CV has not been generated yet.');
         }
 
-        $filename = str(Settings::getName())->slug()->append('_cv.pdf')->value();
+        $filename = $this->cvService->filename();
         $contents = Storage::disk(CvService::DISK)->get(CvService::PATH);
 
         return response($contents, 200, [

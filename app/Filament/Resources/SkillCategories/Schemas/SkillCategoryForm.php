@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\SkillCategories\Schemas;
 
+use App\Filament\Support\TranslationFields;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -29,6 +30,14 @@ class SkillCategoryForm
                             ->reorderable()
                             ->addActionLabel('Add skill'),
                     ]),
+                ...TranslationFields::make([
+                    'name' => fn (string $name) => TextInput::make($name)->label('Name'),
+                    'items' => fn (string $name) => Repeater::make($name)
+                        ->label('Skills')
+                        ->simple(TextInput::make('value'))
+                        ->reorderable()
+                        ->addActionLabel('Add skill'),
+                ]),
             ]);
     }
 }

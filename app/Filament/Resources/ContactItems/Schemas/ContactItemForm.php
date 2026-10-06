@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ContactItems\Schemas;
 
+use App\Filament\Support\TranslationFields;
 use App\Models\ContactItem;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -31,6 +32,11 @@ class ContactItemForm
                             ->placeholder('https://... (leave empty for plain text)')
                             ->helperText('Optional — makes the label a clickable link'),
                     ]),
+                ...TranslationFields::make([
+                    'label' => fn (string $name) => TextInput::make($name)
+                        ->label('Label')
+                        ->helperText('Translate text such as a city name; leave emails and phone numbers empty.'),
+                ]),
             ]);
     }
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasActiveOrder;
+use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -16,7 +17,12 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['name', 'items', 'sort_order', 'is_active'])]
 class SkillCategory extends Model
 {
-    use HasActiveOrder;
+    use HasActiveOrder, HasTranslations;
+
+    public static function translatableFields(): array
+    {
+        return ['name', 'items'];
+    }
 
     protected function casts(): array
     {

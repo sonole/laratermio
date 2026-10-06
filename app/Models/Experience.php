@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasActiveOrder;
+use App\Models\Concerns\HasTranslations;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Lang;
 
 /**
  * @property int $id
@@ -22,7 +24,12 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['title', 'company', 'start_date', 'end_date', 'is_current', 'bullets', 'sort_order', 'is_active'])]
 class Experience extends Model
 {
-    use HasActiveOrder;
+    use HasActiveOrder, HasTranslations;
+
+    public static function translatableFields(): array
+    {
+        return ['title', 'company', 'bullets'];
+    }
 
     protected function casts(): array
     {
@@ -37,8 +44,8 @@ class Experience extends Model
 
     public function getPeriodAttribute(): string
     {
-        $start = $this->start_date->format('M Y');
-        $end = $this->end_date ? $this->end_date->format('M Y') : 'Present';
+        $start = $this->start_date->translatedFormat('M Y');
+        $end = $this->end_date ? $this->end_date->translatedFormat('M Y') : Lang::string('cv.present');
 
         return "{$start} – {$end}";
     }

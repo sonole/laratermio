@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasActiveOrder;
+use App\Models\Concerns\HasTranslations;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Lang;
 
 /**
  * @property int $id
@@ -23,9 +25,14 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['title', 'institution', 'start_date', 'end_date', 'is_certification', 'description', 'certificate_url', 'sort_order', 'is_active'])]
 class Education extends Model
 {
-    use HasActiveOrder;
+    use HasActiveOrder, HasTranslations;
 
     protected $table = 'educations';
+
+    public static function translatableFields(): array
+    {
+        return ['title', 'institution', 'description'];
+    }
 
     protected function casts(): array
     {
@@ -39,9 +46,9 @@ class Education extends Model
 
     public function getPeriodAttribute(): string
     {
-        $start = $this->start_date->format('M Y');
-        $end = $this->end_date ? $this->end_date->format('M Y') : ($this->is_certification ? null : 'Present');
+        $start = $this->start_date->translatedFormat('M Y');
+        $end = $this->end_date ? $this->end_date->translatedFormat('M Y') : ($this->is_certification ? null : Lang::string('cv.present'));
 
-        return $end ? "{$start} – {$end}" : "Issued on {$start}";
+        return $end ? "{$start} – {$end}" : Lang::string('cv.issued_on', ['date' => $start]);
     }
 }

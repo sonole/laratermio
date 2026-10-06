@@ -76,6 +76,24 @@ Everything editable at `/admin` via Filament — no code changes needed:
 
 Hit **Generate** in the admin panel and DomPDF renders your terminal content — experience, education, skills, projects, contact — to a clean A4 PDF. The `cv` link appears automatically in the terminal nav once the file exists. One source of truth for your portfolio and your resume.
 
+#### CV font
+
+**Settings → CV → CV font** picks the typeface: Helvetica, Times, Courier, or the bundled DejaVu Sans / Serif / Mono. Helvetica, Times and Courier only cover Western European text, so a CV containing Greek, Cyrillic, Turkish, etc. automatically switches to the matching DejaVu font; pick a DejaVu font if you want the same look in every language.
+
+#### CV in other languages
+
+The site itself stays single-language: write your content in the language set by `APP_LOCALE` (default `en`). To also produce your CV in other languages:
+
+1. **Settings → CV → Additional CV languages** — choose the languages (the list lives in `config/portfolio.php`).
+2. Each switched-on language adds a **CV translations** tab to Settings (name, role, about, section titles) and to every experience, education, project, skill and contact form. Anything you leave empty falls back to your main-language text, so a half-translated CV still renders completely.
+3. On the dashboard, the CV widget gets a **Download** button per language. These PDFs are rendered on the spot and sent to your browser — they are never stored or published. Only the main-language CV is served at `/cv`.
+
+Section titles (Objective, Experience, …) come from `lang/<locale>/cv.php`. To use your own wording, fill in **Settings → CV → … title** (main language) or the matching input in a translation tab; the built-in title is shown as the placeholder and is used whenever the input is empty.
+
+To add a language, add it to `cv_locales` in `config/portfolio.php` and create `lang/<locale>/cv.php`. Right-to-left and CJK scripts (Arabic, Hebrew, Chinese, Japanese, Korean…) are not supported: DomPDF cannot shape them and the bundled fonts do not include them.
+
+> **Upgrading an existing install:** run `php artisan migrate`. It adds the translation columns and the new settings rows without touching your content. Avoid re-running `SystemSeeder` on a live site — it resets terminal command labels and descriptions.
+
 ---
 
 ## Local development (Sail / Docker)

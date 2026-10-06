@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\CvFont;
 use App\Enums\NavItemType;
 use App\Enums\SettingKey;
 use App\Enums\SettingType;
@@ -132,7 +133,7 @@ class SystemSeeder extends Seeder
         foreach ($this->settingDefinitions() as $def) {
             $record = Setting::query()->firstOrCreate(
                 ['key' => $def['key']],
-                array_merge($def, ['value' => null])
+                array_merge(['value' => null], $def)
             );
 
             if (! $record->wasRecentlyCreated) {
@@ -146,7 +147,7 @@ class SystemSeeder extends Seeder
         }
     }
 
-    /** @return array<int, array{group: string, key: string, label: string, type: SettingType, sort_order: int}> */
+    /** @return array<int, array{group: string, key: string, label: string, type: SettingType, sort_order: int, value?: string}> */
     private function settingDefinitions(): array
     {
         return [
@@ -167,6 +168,13 @@ class SystemSeeder extends Seeder
             ['group' => 'SEO', 'key' => SettingKey::Favicon->value, 'label' => 'Favicon', 'type' => SettingType::File, 'sort_order' => 15],
             ['group' => 'SEO', 'key' => SettingKey::SeoOgImage->value, 'label' => 'Social share image', 'type' => SettingType::File, 'sort_order' => 16],
             ['group' => 'SEO', 'key' => SettingKey::SeoTwitterHandle->value, 'label' => 'Twitter / X handle', 'type' => SettingType::String, 'sort_order' => 17],
+            ['group' => 'CV', 'key' => SettingKey::CvFont->value, 'label' => 'CV font', 'type' => SettingType::Select, 'sort_order' => 18, 'value' => CvFont::default()->value],
+            ['group' => 'CV', 'key' => SettingKey::CvLocales->value, 'label' => 'Additional CV languages', 'type' => SettingType::MultiSelect, 'sort_order' => 19],
+            ['group' => 'CV', 'key' => SettingKey::CvTitleObjective->value, 'label' => 'Objective title', 'type' => SettingType::String, 'sort_order' => 20],
+            ['group' => 'CV', 'key' => SettingKey::CvTitleExperience->value, 'label' => 'Experience title', 'type' => SettingType::String, 'sort_order' => 21],
+            ['group' => 'CV', 'key' => SettingKey::CvTitleEducation->value, 'label' => 'Education title', 'type' => SettingType::String, 'sort_order' => 22],
+            ['group' => 'CV', 'key' => SettingKey::CvTitleSkills->value, 'label' => 'Skills title', 'type' => SettingType::String, 'sort_order' => 23],
+            ['group' => 'CV', 'key' => SettingKey::CvTitleProjects->value, 'label' => 'Projects title', 'type' => SettingType::String, 'sort_order' => 24],
         ];
     }
 

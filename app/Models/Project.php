@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasActiveOrder;
+use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
@@ -22,7 +23,12 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 #[Fillable(['name', 'subtitle', 'video_url', 'tech', 'bullets', 'links', 'sort_order', 'is_active'])]
 class Project extends Model implements HasMedia
 {
-    use HasActiveOrder, InteractsWithMedia;
+    use HasActiveOrder, HasTranslations, InteractsWithMedia;
+
+    public static function translatableFields(): array
+    {
+        return ['name', 'subtitle', 'bullets'];
+    }
 
     protected function casts(): array
     {

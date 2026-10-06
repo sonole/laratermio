@@ -1,5 +1,12 @@
 <?php
 
+use App\Enums\SettingKey;
+use App\Enums\SettingType;
+use App\Models\ContactItem;
+use App\Models\Education;
+use App\Models\Experience;
+use App\Models\Setting;
+use App\Models\SkillCategory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -44,7 +51,62 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * Create or update a setting. `$translations` is `[locale => text]` for translatable settings.
+ *
+ * @param  array<string, string>|null  $translations
+ */
+function cvSetting(SettingKey $key, ?string $value, ?array $translations = null): Setting
 {
-    // ..
+    return Setting::query()->updateOrCreate(['key' => $key->value], [
+        'group' => 'CV',
+        'label' => $key->value,
+        'type' => SettingType::String,
+        'value' => $value,
+        'translations' => $translations,
+        'sort_order' => 0,
+    ]);
+}
+
+/** Switch on additional CV languages, as the admin would in Settings. */
+function enableCvLocales(string ...$locales): void
+{
+    // Keep the real multiselect type, so the Settings page decodes the stored list like it does for real.
+    cvSetting(SettingKey::CvLocales, json_encode($locales))->update(['type' => SettingType::MultiSelect]);
+}
+
+function seedEnglishCv(): void
+{
+    cvSetting(SettingKey::Name, 'Alex Example');
+    cvSetting(SettingKey::Role, 'Software Engineer');
+    cvSetting(SettingKey::About, 'Experienced developer focused on Laravel.');
+
+    Experience::create(['title' => 'Senior Developer', 'company' => 'Acme Inc', 'start_date' => '2020-03-01', 'is_current' => true, 'bullets' => ['Built services']]);
+}
+
+function seedGreekCv(): void
+{
+    cvSetting(SettingKey::Name, 'Αλέξανδρος Παλιαμπέλος');
+    cvSetting(SettingKey::Role, 'Μηχανικός Λογισμικού');
+    cvSetting(SettingKey::About, 'Έμπειρος προγραμματιστής με εστίαση στο Laravel.');
+
+    Experience::create(['title' => 'Ανώτερος Προγραμματιστής', 'company' => 'Εταιρεία Α.Ε.', 'start_date' => '2020-01-01', 'is_current' => true, 'bullets' => ['Σχεδίαση υπηρεσιών']]);
+    Education::create(['title' => 'Πληροφορική', 'institution' => 'Πανεπιστήμιο Αθηνών', 'start_date' => '2012-09-01', 'end_date' => '2017-06-01']);
+    SkillCategory::create(['name' => 'Γλώσσες', 'items' => ['PHP', 'JavaScript']]);
+    ContactItem::create(['label' => 'me@example.com', 'icon' => 'fa-solid fa-envelope', 'url' => 'mailto:me@example.com']);
+}
+
+/** An English CV whose Greek translations are filled in. */
+function seedTranslatedCv(): void
+{
+    seedEnglishCv();
+
+    cvSetting(SettingKey::Name, 'Alex Example', ['el' => 'Αλέξανδρος Παράδειγμα']);
+    cvSetting(SettingKey::Role, 'Software Engineer', ['el' => 'Μηχανικός Λογισμικού']);
+
+    Experience::query()->update([
+        'translations' => json_encode(['el' => ['title' => 'Ανώτερος Προγραμματιστής', 'bullets' => ['Σχεδίαση υπηρεσιών']]]),
+    ]);
+    Education::create(['title' => 'BSc Computer Science', 'institution' => 'University of Athens', 'start_date' => '2012-09-01', 'end_date' => '2017-06-01', 'translations' => ['el' => ['title' => 'Πτυχίο Πληροφορικής']]]);
+    Education::create(['title' => 'AWS Certified', 'institution' => 'Amazon', 'start_date' => '2022-11-01', 'is_certification' => true]);
 }

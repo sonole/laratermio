@@ -10,4 +10,6 @@ enum SettingType: string
     case Switch = 'switch';
     case Number = 'number';
     case File = 'file';
+    case Select = 'select';
+    case MultiSelect = 'multiselect';
 }

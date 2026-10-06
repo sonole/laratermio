@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Experiences\Schemas;
 
+use App\Filament\Support\TranslationFields;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
@@ -41,6 +42,15 @@ class ExperienceForm
                             ->reorderable()
                             ->addActionLabel('Add bullet'),
                     ]),
+                ...TranslationFields::make([
+                    'title' => fn (string $name) => TextInput::make($name)->label('Title'),
+                    'company' => fn (string $name) => TextInput::make($name)->label('Company'),
+                    'bullets' => fn (string $name) => Repeater::make($name)
+                        ->label('Bullet points')
+                        ->simple(Textarea::make('value')->rows(4))
+                        ->reorderable()
+                        ->addActionLabel('Add bullet'),
+                ]),
             ]);
     }
 }
