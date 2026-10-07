@@ -21,7 +21,7 @@ class FastfetchCommand extends BaseCommand
 
     protected function execute(?string $arg): TerminalResponse
     {
-        $phpVersion = PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;
+        $phpVersion = (string) PHP_MAJOR_VERSION;
         $username = Settings::getPromptUsername();
         $hostname = Settings::getPromptHostname();
         $identity = $username.'@'.$hostname;
@@ -104,6 +104,12 @@ class FastfetchCommand extends BaseCommand
         };
     }
 
+    /** Only the major version is shown: the exact release would tell a visitor which known issues apply. */
+    private function major(string $version): string
+    {
+        return explode('.', $version)[0];
+    }
+
     private function npmVersion(string $package): string
     {
         $lockPath = base_path('package-lock.json');
@@ -115,7 +121,7 @@ class FastfetchCommand extends BaseCommand
         $contents = file_get_contents($lockPath);
         $lock = $contents ? json_decode($contents, true) : [];
 
-        return $lock['packages']['node_modules/'.$package]['version'] ?? 'unknown';
+        return $this->major($lock['packages']['node_modules/'.$package]['version'] ?? 'unknown');
     }
 
     private function composerVersion(string $package): string
@@ -131,7 +137,7 @@ class FastfetchCommand extends BaseCommand
 
         foreach (array_merge($lock['packages'] ?? [], $lock['packages-dev'] ?? []) as $pkg) {
             if ($pkg['name'] === $package) {
-                return ltrim($pkg['version'], 'v');
+                return $this->major(ltrim($pkg['version'], 'v'));
             }
         }
 
