@@ -44,7 +44,7 @@ class CommandRegistry
 
     private function instantiate(?string $class): ?TerminalCommandContract
     {
-        if (! $class || ! class_exists($class)) {
+        if (! $class || ! is_a($class, TerminalCommandContract::class, true)) {
             return null;
         }
 
