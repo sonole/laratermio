@@ -43,7 +43,8 @@ class Terminal extends Component
         $cmd = strtolower($parts[0] ?? '');
         $arg = $parts[1] ?? null;
 
-        if (empty($cmd)) {
+        // Not empty(): the input "0" is a command like any other, and is simply not found.
+        if ($cmd === '') {
             return ['type' => 'echo', 'html' => ''];
         }
 
