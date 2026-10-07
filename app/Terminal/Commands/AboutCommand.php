@@ -30,7 +30,7 @@ class AboutCommand extends BaseCommand
         return TerminalResponse::echo(<<<HTML
         <div class="t-block">
             {$this->header('about')}
-            <p. class="t-paragraph">$text</p.>
+            <p class="t-paragraph">$text</p>
             <p class="t-dim t-mt">$name &mdash; $role</p>
         </div>
         HTML);
