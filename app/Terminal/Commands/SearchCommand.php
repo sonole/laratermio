@@ -29,7 +29,7 @@ class SearchCommand extends BaseCommand
 
         $query = trim($arg);
 
-        if (strlen($query) < 3) {
+        if (mb_strlen($query) < 3) {
             return TerminalResponse::echo($this->renderError('Query too short — minimum 3 characters.'));
         }
 
@@ -51,7 +51,7 @@ class SearchCommand extends BaseCommand
 
         return TerminalResponse::echo(<<<HTML
         <div class="t-block">
-            {$this->header('search: '.e($query))}
+            {$this->header('search: '.$query)}
             $sections
         </div>
         HTML);
@@ -234,14 +234,25 @@ class SearchCommand extends BaseCommand
 
     private function matches(string $text, string $query): bool
     {
-        return stripos($text, $query) !== false;
+        return mb_stripos($text, $query) !== false;
     }
 
     private function highlight(string $text, string $query): string
     {
-        $escaped = e($text);
-        $pattern = '/('.preg_quote(e($query), '/').')/i';
+        // Match on the raw text and escape each piece afterwards, so a query such as "amp" can never
+        // split an HTML entity that escaping produced.
+        $parts = preg_split('/('.preg_quote($query, '/').')/iu', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-        return preg_replace($pattern, '<span class="t-accent">$1</span>', $escaped) ?? $escaped;
+        if ($parts === false) {
+            return e($text);
+        }
+
+        $html = '';
+
+        foreach ($parts as $i => $part) {
+            $html .= $i % 2 === 1 ? '<span class="t-accent">'.e($part).'</span>' : e($part);
+        }
+
+        return $html;
     }
 }

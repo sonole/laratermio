@@ -130,10 +130,11 @@ class ContactCommand extends BaseCommand
         // fail silently
         try {
             $owner = User::query()->firstWhere('email', config('app.admin.email'));
+            // Without an owner account nothing is sent, so the status stays pending rather than claiming otherwise.
             if ($owner) {
                 Mail::to($owner->email)->send(new ContactMessageMail($contactMessage));
+                $contactMessage->update(['admin_status' => ContactMessageStatus::Sent]);
             }
-            $contactMessage->update(['admin_status' => ContactMessageStatus::Sent]);
         } catch (\Throwable $e) {
             Log::error('contact command: admin notification failed', ['error' => $e->getMessage(), 'email' => $email]);
             $contactMessage->update(['admin_status' => ContactMessageStatus::Failed]);
