@@ -38,7 +38,7 @@
     @endif
 
     {{-- JSON-LD Person schema --}}
-    <script type="application/ld+json">{!! json_encode($seo['json_ld'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}</script>
+    <script type="application/ld+json">{!! json_encode($seo['json_ld'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_HEX_TAG) !!}</script>
 
     <link rel="shortcut icon" href="{{ $faviconUrl }}" type="image/x-icon">
     @vite(['resources/css/app.css', 'resources/js/app.js'])

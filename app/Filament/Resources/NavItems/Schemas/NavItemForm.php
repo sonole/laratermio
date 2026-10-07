@@ -12,6 +12,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Arr;
 
 class NavItemForm
 {
@@ -67,24 +68,29 @@ class NavItemForm
                             }),
                         TextInput::make('url')
                             ->placeholder('https://...')
-                            ->dehydrated(true)
+                            // Hidden while a file is the source, but it still has to save the link to that file.
+                            ->dehydratedWhenHidden(fn ($get) => $isLink($get))
+                            ->dehydrateStateUsing(function ($state, $get) {
+                                if ($get('url_source') !== 'file') {
+                                    return $state;
+                                }
+
+                                // By now the upload has been stored, so its state holds the path on the disk.
+                                $stored = Arr::first(Arr::wrap($get('url_file')));
+
+                                return is_string($stored) && $stored !== '' ? '/storage/'.$stored : null;
+                            })
                             ->visible(fn ($get) => $isLink($get) && $get('url_source') !== 'file'),
                         FileUpload::make('url_file')
                             ->label('File')
                             ->disk('public')
                             ->directory(NavItem::UPLOAD_DIRECTORY)
                             ->dehydrated(false)
-                            ->live()
                             ->visible(fn ($get) => $isLink($get) && $get('url_source') === 'file')
                             ->afterStateHydrated(function ($set, $get) {
                                 $url = $get('url');
                                 if ($url && str_starts_with($url, '/storage/')) {
                                     $set('url_file', ltrim(str_replace('/storage/', '', $url), '/'));
-                                }
-                            })
-                            ->afterStateUpdated(function ($state, $set) {
-                                if ($state) {
-                                    $set('url', '/storage/'.$state);
                                 }
                             }),
                         Select::make('target')
