@@ -150,7 +150,26 @@ MAIL_FROM_ADDRESS=you@yourdomain.com
 # Contact form messages from the terminal are delivered to this address.
 ADMIN_EMAIL=foobar@yourdomain.com
 ADMIN_NAME="Foo Bar"
+
+# Only if the app sits behind a proxy, see "Deploying behind a proxy" below.
+TRUSTED_PROXIES=
 ```
+
+### Deploying behind a proxy
+
+Rate limits and the admin login throttle work per visitor IP, and HTTPS detection comes from the `X-Forwarded-Proto` header. Both are only as honest as whoever wrote the headers, so the app **trusts no proxy unless you name it** in `TRUSTED_PROXIES`:
+
+| Your setup | `TRUSTED_PROXIES` |
+|---|---|
+| Nothing in front of the app (nginx/Apache on the same server, local development) | leave empty |
+| A platform or reverse proxy in front: Railway, Render, Fly.io, Heroku, Traefik, a load balancer | `REMOTE_ADDR` |
+| Your own proxy at a known address | that address or range, e.g. `10.0.0.0/8` |
+| Cloudflare straight to your server | `cloudflare` |
+| Cloudflare, then a platform's proxy | `REMOTE_ADDR,cloudflare` |
+
+`REMOTE_ADDR` trusts whoever is connecting, so use it only when the app cannot be reached except through that proxy. If you are behind a proxy and leave this empty, every visitor looks like the proxy's IP (so one visitor's rate limit becomes everyone's) and the site thinks it is served over plain HTTP, which breaks asset URLs on an HTTPS page. Avoid `*`: it trusts every address and lets a visitor choose their own IP.
+
+The contact form limits (`CONTACT_MAX_PER_IP_PER_HOUR`, `CONTACT_MAX_PER_DAY`) and the Secure session cookie (on automatically when `APP_URL` starts with `https://`) are described in `.env.example`.
 
 ### Running checks
 
