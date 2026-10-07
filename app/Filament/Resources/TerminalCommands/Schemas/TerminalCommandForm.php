@@ -23,6 +23,7 @@ class TerminalCommandForm
                         Grid::make()->schema([
                             TextInput::make('name')
                                 ->required()
+                                ->unique(ignoreRecord: true)
                                 ->placeholder('about'),
                             TextInput::make('display_label')
                                 ->required()
