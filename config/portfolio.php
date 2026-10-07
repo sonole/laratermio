@@ -39,4 +39,21 @@ return [
         'uk' => 'Українська',
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Contact form limits
+    |--------------------------------------------------------------------------
+    |
+    | The `contact` terminal command emails a confirmation to whatever address a visitor types,
+    | so it is capped to keep it from being used to send mail to other people. Besides the
+    | existing one-message-per-address-per-day rule: messages per visitor IP per hour, and
+    | messages from everyone per day. Set a limit to 0 to switch it off.
+    |
+    */
+
+    'contact' => [
+        'per_ip_per_hour' => (int) env('CONTACT_MAX_PER_IP_PER_HOUR', 3),
+        'per_day' => (int) env('CONTACT_MAX_PER_DAY', 50),
+    ],
+
 ];

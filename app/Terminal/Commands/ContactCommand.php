@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Terminal\TerminalResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 
 class ContactCommand extends BaseCommand
@@ -78,6 +79,32 @@ class ContactCommand extends BaseCommand
         HTML);
     }
 
+    /**
+     * Count this message against the per-visitor and site-wide limits. Returns true when either is
+     * already used up, in which case nothing is counted and nothing should be sent.
+     */
+    private function hitContactLimit(): bool
+    {
+        $limits = [
+            'contact:ip:'.request()->ip() => [(int) config('portfolio.contact.per_ip_per_hour'), 3600],
+            'contact:day' => [(int) config('portfolio.contact.per_day'), 86400],
+        ];
+
+        $limits = array_filter($limits, fn (array $limit) => $limit[0] > 0);
+
+        foreach ($limits as $key => [$max]) {
+            if (RateLimiter::tooManyAttempts($key, $max)) {
+                return true;
+            }
+        }
+
+        foreach ($limits as $key => [, $decay]) {
+            RateLimiter::hit($key, $decay);
+        }
+
+        return false;
+    }
+
     protected function executeNotification(string $arg): TerminalResponse
     {
         $parts = preg_split('/\s+/', $arg, 2) ?: [$arg];
@@ -110,6 +137,10 @@ class ContactCommand extends BaseCommand
                 <p class="t-dim">You've already left a message today — I'll be in touch soon.</p>
             </div>
             HTML);
+        }
+
+        if ($this->hitContactLimit()) {
+            return TerminalResponse::echo($this->renderError('too many messages right now — please try again later'));
         }
 
         $contactMessage = ContactMessage::query()->create([
