@@ -156,7 +156,8 @@ ADMIN_NAME="Foo Bar"
 
 ```bash
 # All checks — lint, static analysis, tests
-./vendor/bin/sail composer test
+ APP_CONFIG_CACHE=/tmp/no-config.php DB_CONNECTION=sqlite DB_DATABASE=:memory: ./vendor/bin/pest
+
 # Static analysis (PHPStan / Larastan)
 ./vendor/bin/sail composer types:check
 # or directly:
