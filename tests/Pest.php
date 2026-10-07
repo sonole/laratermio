@@ -7,6 +7,8 @@ use App\Models\Education;
 use App\Models\Experience;
 use App\Models\Setting;
 use App\Models\SkillCategory;
+use App\Models\User;
+use Database\Seeders\SystemSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -73,6 +75,22 @@ function enableCvLocales(string ...$locales): void
 {
     // Keep the real multiselect type, so the Settings page decodes the stored list like it does for real.
     cvSetting(SettingKey::CvLocales, json_encode($locales))->update(['type' => SettingType::MultiSelect]);
+}
+
+/** Sign in as an admin who has already changed their password, so Filament pages are reachable. */
+function actingAsAdmin(): User
+{
+    $user = User::factory()->create(['must_change_password' => false]);
+
+    test()->actingAs($user);
+
+    return $user;
+}
+
+/** Register the terminal commands, nav items and settings the app ships with (no personal content). */
+function seedSystem(): void
+{
+    test()->seed(SystemSeeder::class);
 }
 
 function seedEnglishCv(): void
