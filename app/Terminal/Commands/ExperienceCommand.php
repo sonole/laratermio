@@ -45,8 +45,8 @@ class ExperienceCommand extends BaseCommand implements HasStructuredData
             ->values()
             ->map(fn (Experience $exp, int $i) => [
                 'n' => $i + 1,
-                'name' => $exp->title,
-                'subtitle' => $exp->company.($exp->period ? ' · '.$exp->period : ''),
+                'name' => e($exp->title),
+                'subtitle' => e($exp->company.($exp->period ? ' · '.$exp->period : '')),
                 'html' => $this->renderItem($exp),
             ])
             ->all();

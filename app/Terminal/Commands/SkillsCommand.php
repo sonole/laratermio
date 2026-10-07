@@ -26,6 +26,7 @@ class SkillsCommand extends BaseCommand
 
         $sections = $categories
             ->map(function (SkillCategory $category) {
+                $name = e($category->name);
                 $tags = implode('', array_map(
                     fn ($item) => '<span class="t-skill-tag">'.e($item).'</span>',
                     $category->items ?? []
@@ -33,7 +34,7 @@ class SkillsCommand extends BaseCommand
 
                 return <<<HTML
                 <div class="t-skill-row">
-                    <span class="t-skill-cat">$category->name</span>
+                    <span class="t-skill-cat">$name</span>
                     <div class="t-skill-tags">$tags</div>
                 </div>
                 HTML;

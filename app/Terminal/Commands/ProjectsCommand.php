@@ -45,8 +45,8 @@ class ProjectsCommand extends BaseCommand implements HasStructuredData
             ->values()
             ->map(fn (Project $project, int $i) => [
                 'n' => $i + 1,
-                'name' => $project->name,
-                'subtitle' => $project->subtitle,
+                'name' => e($project->name),
+                'subtitle' => e($project->subtitle),
                 'html' => $this->renderItem($project),
             ])
             ->all();
