@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Enums\ContactMessageStatus;
+use Database\Factories\ContactMessageFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -16,6 +18,9 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['email', 'message', 'visitor_status', 'admin_status'])]
 class ContactMessage extends Model
 {
+    /** @use HasFactory<ContactMessageFactory> */
+    use HasFactory;
+
     protected $casts = [
         'visitor_status' => ContactMessageStatus::class,
         'admin_status' => ContactMessageStatus::class,

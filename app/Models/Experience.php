@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Models\Concerns\HasActiveOrder;
 use App\Models\Concerns\HasTranslations;
 use Carbon\Carbon;
+use Database\Factories\ExperienceFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Lang;
 
@@ -24,7 +26,8 @@ use Illuminate\Support\Facades\Lang;
 #[Fillable(['title', 'company', 'start_date', 'end_date', 'is_current', 'bullets', 'sort_order', 'is_active'])]
 class Experience extends Model
 {
-    use HasActiveOrder, HasTranslations;
+    /** @use HasFactory<ExperienceFactory> */
+    use HasActiveOrder, HasFactory, HasTranslations;
 
     public static function translatableFields(): array
     {

@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Enums\NavItemType;
 use App\Models\Concerns\HasActiveOrder;
+use Database\Factories\NavItemFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -23,7 +25,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['terminal_command_id', 'command_args', 'label', 'url', 'target', 'type', 'sort_order', 'is_active'])]
 class NavItem extends Model
 {
-    use HasActiveOrder;
+    /** @use HasFactory<NavItemFactory> */
+    use HasActiveOrder, HasFactory;
 
     public const string UPLOAD_DIRECTORY = 'uploads/nav-items';
 

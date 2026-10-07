@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Models\Concerns\HasActiveOrder;
 use App\Models\Concerns\HasTranslations;
+use Database\Factories\ContactItemFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -18,7 +20,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['icon', 'label', 'url', 'sort_order', 'is_active'])]
 class ContactItem extends Model
 {
-    use HasActiveOrder, HasTranslations;
+    /** @use HasFactory<ContactItemFactory> */
+    use HasActiveOrder, HasFactory, HasTranslations;
 
     public static function translatableFields(): array
     {

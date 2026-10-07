@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Enums\InteractionType;
 use App\Models\Concerns\HasActive;
+use Database\Factories\TerminalCommandFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -19,7 +21,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['name', 'command_class', 'display_label', 'description', 'is_active', 'interaction_type'])]
 class TerminalCommand extends Model
 {
-    use HasActive;
+    /** @use HasFactory<TerminalCommandFactory> */
+    use HasActive, HasFactory;
 
     protected function casts(): array
     {

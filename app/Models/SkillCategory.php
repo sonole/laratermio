@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Models\Concerns\HasActiveOrder;
 use App\Models\Concerns\HasTranslations;
+use Database\Factories\SkillCategoryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -17,7 +19,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['name', 'items', 'sort_order', 'is_active'])]
 class SkillCategory extends Model
 {
-    use HasActiveOrder, HasTranslations;
+    /** @use HasFactory<SkillCategoryFactory> */
+    use HasActiveOrder, HasFactory, HasTranslations;
 
     public static function translatableFields(): array
     {

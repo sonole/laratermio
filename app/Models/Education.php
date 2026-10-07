@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Models\Concerns\HasActiveOrder;
 use App\Models\Concerns\HasTranslations;
 use Carbon\Carbon;
+use Database\Factories\EducationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Lang;
 
@@ -25,7 +27,8 @@ use Illuminate\Support\Facades\Lang;
 #[Fillable(['title', 'institution', 'start_date', 'end_date', 'is_certification', 'description', 'certificate_url', 'sort_order', 'is_active'])]
 class Education extends Model
 {
-    use HasActiveOrder, HasTranslations;
+    /** @use HasFactory<EducationFactory> */
+    use HasActiveOrder, HasFactory, HasTranslations;
 
     protected $table = 'educations';
 
