@@ -13,6 +13,7 @@ class ContactMessagePreview implements TemplatePreview
         return 'Contact Message';
     }
 
+    /** @return view-string */
     public function templatePreviewView(): string
     {
         return 'mail.contact-message';

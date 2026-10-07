@@ -31,6 +31,7 @@ class TemplatePreviewService
         return app($class);
     }
 
+    /** @return view-string */
     public static function view(string $key): string
     {
         return static::make($key)->templatePreviewView();

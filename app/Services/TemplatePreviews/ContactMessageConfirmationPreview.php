@@ -13,6 +13,7 @@ class ContactMessageConfirmationPreview implements TemplatePreview
         return 'Contact Message Confirmation';
     }
 
+    /** @return view-string */
     public function templatePreviewView(): string
     {
         return 'mail.contact-message-confirmation';

@@ -12,6 +12,7 @@ class CvPreview implements TemplatePreview
         return 'CV';
     }
 
+    /** @return view-string */
     public function templatePreviewView(): string
     {
         return 'cv';
