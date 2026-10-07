@@ -18,7 +18,8 @@ class RequirePasswordChange
         if ($user?->must_change_password) {
             $profileUrl = route('filament.admin.auth.profile');
 
-            if ($request->url() !== $profileUrl) {
+            // Signing out must always work, otherwise a forced change traps the user in the panel.
+            if ($request->url() !== $profileUrl && ! $request->routeIs('filament.admin.auth.logout')) {
                 $request->session()->put('url.intended_after_password_change', $request->url());
 
                 return redirect($profileUrl);
