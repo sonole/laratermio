@@ -9,6 +9,7 @@ use App\Models\ContactMessage;
 use App\Models\TerminalCommand;
 use App\Models\User;
 use App\Terminal\Commands\ContactCommand;
+use Illuminate\Http\Request;
 use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
@@ -305,7 +306,9 @@ describe('contact command', function () {
                 ->and(ContactMessage::query()->count())->toBe(2);
         });
 
-        it('has no other throttling across different addresses', function () {
+        it('does not throttle different addresses on its own (the visitor limits are separate)', function () {
+            config(['portfolio.contact.per_ip_per_hour' => 0, 'portfolio.contact.per_day' => 0]);
+
             foreach (range(1, 6) as $i) {
                 contactCommandRun("visitor{$i}@example.com Hello");
             }
@@ -357,5 +360,59 @@ describe('contact command', function () {
             expect(contactCommandRun('jane@example.com Hello again'))->toContain("You've already left a message today")
                 ->and(ContactMessage::query()->count())->toBe(1);
         });
+    });
+});
+
+describe('contact limits', function () {
+    beforeEach(function () {
+        Mail::fake();
+        config(['portfolio.contact.per_ip_per_hour' => 2, 'portfolio.contact.per_day' => 50]);
+    });
+
+    it('lets a visitor send messages up to the hourly limit and then stops them', function () {
+        expect(contactCommandRun('a@example.com one'))->toContain('Got it')
+            ->and(contactCommandRun('b@example.com two'))->toContain('Got it');
+
+        $html = contactCommandRun('c@example.com three');
+
+        expect($html)->toContain('too many messages')->not->toContain('Got it')
+            ->and(ContactMessage::query()->count())->toBe(2);
+        Mail::assertSent(ContactMessageConfirmationMail::class, 2);
+    });
+
+    it('does not count a message that was rejected as invalid', function () {
+        contactCommandRun('not-an-email hello');
+        contactCommandRun('a@example.com one');
+        contactCommandRun('b@example.com two');
+
+        expect(ContactMessage::query()->count())->toBe(2);
+    });
+
+    it('does not count the repeat of an address that already wrote today', function () {
+        contactCommandRun('a@example.com one');
+        contactCommandRun('a@example.com again');
+        contactCommandRun('b@example.com two');
+
+        expect(ContactMessage::query()->count())->toBe(2);
+    });
+
+    it('keeps a separate allowance for each visitor address', function () {
+        contactCommandRun('a@example.com one');
+        contactCommandRun('b@example.com two');
+
+        // A different visitor arrives.
+        app()->instance('request', Request::create('/', 'POST', server: ['REMOTE_ADDR' => '203.0.113.50']));
+
+        expect(contactCommandRun('c@example.com three'))->toContain('Got it');
+    });
+
+    it('also caps everyone together per day', function () {
+        config(['portfolio.contact.per_ip_per_hour' => 0, 'portfolio.contact.per_day' => 2]);
+
+        contactCommandRun('a@example.com one');
+        contactCommandRun('b@example.com two');
+
+        expect(contactCommandRun('c@example.com three'))->toContain('too many messages')
+            ->and(ContactMessage::query()->count())->toBe(2);
     });
 });

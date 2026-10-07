@@ -47,6 +47,27 @@ describe('CommandRegistry::resolve', function () {
         expect(app(CommandRegistry::class)->resolve('ghost'))->toBeNull();
     });
 
+    it('refuses a class that exists but is not a terminal command', function () {
+        TerminalCommand::factory()->create(['name' => 'sneaky', 'command_class' => ArrayObject::class]);
+
+        expect(app(CommandRegistry::class)->resolve('sneaky'))->toBeNull()
+            ->and(app(CommandRegistry::class)->dispatch('sneaky', null))->toBeNull();
+    });
+
+    it('never builds a class that is not a terminal command', function () {
+        $built = false;
+        app()->bind(ArrayIterator::class, function () use (&$built) {
+            $built = true;
+
+            return new ArrayIterator;
+        });
+        TerminalCommand::factory()->create(['name' => 'sneaky', 'command_class' => ArrayIterator::class]);
+
+        app(CommandRegistry::class)->dispatch('sneaky', null);
+
+        expect($built)->toBeFalse();
+    });
+
     it('returns null when the class column is empty', function () {
         TerminalCommand::factory()->create(['name' => 'blank', 'command_class' => '']);
 

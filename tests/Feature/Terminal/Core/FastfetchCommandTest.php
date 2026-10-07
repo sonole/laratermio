@@ -54,7 +54,7 @@ describe('fastfetch', function () {
 
         expect($html)
             ->toContain($row('Terminal', 'laratermio'))
-            ->toContain($row('PHP', PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION))
+            ->toContain($row('PHP', (string) PHP_MAJOR_VERSION))
             ->toContain($row('Arch', php_uname('m')))
             ->toContain('<span class="t-accent">Framework</span><span class="t-dim">: </span>Laravel ')
             ->toContain('<span class="t-accent">Shell</span><span class="t-dim">: </span>jQuery Terminal ')
@@ -66,11 +66,20 @@ describe('fastfetch', function () {
             ->toContain('<span class="t-accent">Uptime</span><span class="t-dim">: </span>');
     });
 
-    it('reads the framework version from composer.lock', function () {
+    it('reads the framework version from composer.lock and shows only its major version', function () {
         $lock = json_decode(file_get_contents(base_path('composer.lock')), true);
-        $version = collect($lock['packages'])->firstWhere('name', 'laravel/framework')['version'];
+        $version = ltrim(collect($lock['packages'])->firstWhere('name', 'laravel/framework')['version'], 'v');
+        $major = explode('.', $version)[0];
 
-        expect(terminalCoreHtml('fastfetch'))->toContain('Laravel '.ltrim($version, 'v'));
+        expect(terminalCoreHtml('fastfetch'))
+            ->toContain('Laravel '.$major)
+            ->not->toContain($version);
+    });
+
+    it('never shows an exact release number for any package', function () {
+        // "Laravel 13.35.0", "Tailwind 4.3.1", "jQuery Terminal 2.46.1", "PHP 8.5": a dotted number would give it away.
+        expect(strip_tags(terminalCoreHtml('fastfetch')))
+            ->not->toMatch('/\b(PHP|Laravel|Livewire|Filament|Tailwind|Terminal)\s+\d+\.\d+/');
     });
 
     it('reports memory usage in MiB', function () {
