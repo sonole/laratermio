@@ -18,6 +18,15 @@ class ThemeCommand extends BaseCommand
         return 'system';
     }
 
+    public function helpOptions(): array
+    {
+        return [
+            ['option' => 'theme light', 'description' => 'Use the light color scheme'],
+            ['option' => 'theme dark', 'description' => 'Use the dark color scheme'],
+            ['option' => 'theme system', 'description' => 'Follow the operating system setting'],
+        ];
+    }
+
     protected function execute(?string $arg): TerminalResponse
     {
         if ($arg === null) {
