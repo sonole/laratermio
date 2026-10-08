@@ -190,3 +190,4 @@ The contact form limits (`CONTACT_MAX_PER_IP_PER_HOUR`, `CONTACT_MAX_PER_DAY`) a
 # or directly:
 ./vendor/bin/sail bin phpstan analyse --memory-limit 1G
 ```
+<!-- downstream-sync-check -->
