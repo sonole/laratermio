@@ -1,0 +1,63 @@
+# OPTIONAL. Copy this file into the laratermio repository as .github/workflows/notify-downstream.yml
+# (it does nothing in this repository). It makes a green push to laratermio's main reach the Plesk
+# site within a minute or two, instead of waiting for the 6-hourly schedule in sync-upstream.yml.
+#
+# It only fires after laratermio's own CI succeeded on a push to main, so a red commit is never
+# announced and a pull request from a fork never reaches it.
+#
+# It starts sync-upstream.yml in the private repo through the workflow_dispatch API. That needs one
+# secret in laratermio (Settings > Secrets and variables > Actions):
+#
+#   DOWNSTREAM_DISPATCH_TOKEN   a fine-grained personal access token, resource owner sonole, limited to
+#                               the sonole/apaliampelos.me repository, with exactly one permission:
+#                               "Actions: Read and write". Nothing else. Not "Contents".
+#
+# Why that permission and not Contents: the token sits in a public repository, so treat it as the
+# most exposed secret you have. With "Actions" it can only start workflows that already exist in the
+# private repo (sync and deploy, both harmless to repeat). With "Contents: write" a leak would let
+# someone push code to main, and main is deployed to your server.
+#
+# Fine-grained tokens expire (1 year at most). When it does, this job fails, and the 6-hourly schedule
+# keeps things working until you renew it.
+#
+# This repo is public, so the name of the private repo below is visible to everyone. It is not
+# sensitive (the domain is public, the code is not reachable), but if you would rather hide it, store
+# it as a secret and use ${{ secrets.DOWNSTREAM_REPO }} instead.
+
+name: Notify downstream
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  notify:
+    name: Tell apaliampelos.me to sync
+    # - repository: stops forks of laratermio from running a job that has no secret, and stops this
+    #   file from firing inside apaliampelos.me itself (the sync merges it there along with the rest
+    #   of laratermio, where it must stay inert).
+    # - event + head_repository: only a push to this repo's own main counts. A fork's pull request
+    #   whose branch happens to be called "main" matches the branch filter above, and would not
+    #   pass these.
+    if: >-
+      github.repository == 'sonole/laratermio' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Start the sync in apaliampelos.me
+        env:
+          TOKEN: ${{ secrets.DOWNSTREAM_DISPATCH_TOKEN }}
+        run: |
+          curl -fsS -X POST \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/sonole/apaliampelos.me/actions/workflows/sync-upstream.yml/dispatches \
+            -d '{"ref":"main"}'
