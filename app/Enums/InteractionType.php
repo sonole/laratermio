@@ -14,5 +14,4 @@ enum InteractionType: string
             self::Selector => 'Selector (arrow keys)',
         };
     }
-
 }
