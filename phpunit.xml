@@ -26,6 +26,7 @@
         <env name="CACHE_STORE" value="array"/>
         <env name="DB_DATABASE" value="testing"/>
         <env name="DB_URL" value=""/>
+        <env name="LARAVEL_CLOUDFLARE_ENABLED" value="false"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>

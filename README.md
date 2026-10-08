@@ -151,23 +151,31 @@ MAIL_FROM_ADDRESS=you@yourdomain.com
 ADMIN_EMAIL=foobar@yourdomain.com
 ADMIN_NAME="Foo Bar"
 
-# Only if the app sits behind a proxy, see "Deploying behind a proxy" below.
-TRUSTED_PROXIES=
+# Only if Cloudflare sits in front of the app, see "Deploying behind Cloudflare" below.
+LARAVEL_CLOUDFLARE_ENABLED=false
 ```
 
-### Deploying behind a proxy
+### Deploying behind Cloudflare
 
-Rate limits and the admin login throttle work per visitor IP, and HTTPS detection comes from the `X-Forwarded-Proto` header. Both are only as honest as whoever wrote the headers, so the app **trusts no proxy unless you name it** in `TRUSTED_PROXIES`:
+Rate limits and the admin login throttle work per visitor IP, and HTTPS detection comes from the `X-Forwarded-Proto` header. Both are only as honest as whoever wrote the headers, so the app **trusts no proxy unless you switch Cloudflare on**:
 
-| Your setup | `TRUSTED_PROXIES` |
-|---|---|
-| Nothing in front of the app (nginx/Apache on the same server, local development) | leave empty |
-| A platform or reverse proxy in front: Railway, Render, Fly.io, Heroku, Traefik, a load balancer | `REMOTE_ADDR` |
-| Your own proxy at a known address | that address or range, e.g. `10.0.0.0/8` |
-| Cloudflare straight to your server | `cloudflare` |
-| Cloudflare, then a platform's proxy | `REMOTE_ADDR,cloudflare` |
+```env
+LARAVEL_CLOUDFLARE_ENABLED=true
+```
 
-`REMOTE_ADDR` trusts whoever is connecting, so use it only when the app cannot be reached except through that proxy. If you are behind a proxy and leave this empty, every visitor looks like the proxy's IP (so one visitor's rate limit becomes everyone's) and the site thinks it is served over plain HTTP, which breaks asset URLs on an HTTPS page. Avoid `*`: it trusts every address and lets a visitor choose their own IP.
+Leave it `false` when nothing is in front of the app (nginx/Apache on the same server, local development). It is `false` in `.env.example` because the package itself defaults to `true`.
+
+Cloudflare's address ranges come from [monicahq/laravel-cloudflare](https://github.com/monicahq/laravel-cloudflare): fetched from cloudflare.com on the first request, cached, and refreshed daily by the scheduler (`cloudflare:reload`, so `schedule:run` must be on your cron). Run `php artisan cloudflare:reload` once when you deploy, so a failed fetch shows up there and not on a visitor's first request.
+
+Leave `LARAVEL_CLOUDFLARE_REPLACE_IP` off. It takes `CF-Connecting-IP` as the visitor's address from anyone, so a visitor who reaches the server directly could pick their own IP. The addresses Cloudflare puts in `X-Forwarded-For` are enough. The one setup this does not cover is a proxy that *overwrites* `X-Forwarded-For` with the Cloudflare address it saw instead of adding to it: visitors then share their Cloudflare edge's IP.
+
+Any other proxy in front (a platform's load balancer, Traefik, ...) is not trusted, so every visitor would look like the proxy's IP and the site would think it is served over plain HTTP. Name it with Laravel's own `trustProxies` in `bootstrap/app.php`; the package adds Cloudflare's ranges to it:
+
+```php
+$middleware->trustProxies(at: ['REMOTE_ADDR'], headers: ...);
+```
+
+`REMOTE_ADDR` trusts whoever is connecting, so use it only when the app cannot be reached except through that proxy.
 
 The contact form limits (`CONTACT_MAX_PER_IP_PER_HOUR`, `CONTACT_MAX_PER_DAY`) and the Secure session cookie (on automatically when `APP_URL` starts with `https://`) are described in `.env.example`.
 

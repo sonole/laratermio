@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\Process\Process;
 
@@ -33,18 +34,20 @@ describe('security headers', function () {
     });
 
     it('ignore a forwarded protocol when no proxy is trusted', function () {
-        config(['trustedproxy.proxies' => null]);
-
         $this->withServerVariables(['REMOTE_ADDR' => '198.51.100.7'])
             ->withHeaders(['X-Forwarded-Proto' => 'https'])
             ->get('/')
             ->assertHeaderMissing('Strict-Transport-Security');
     });
 
-    it('treat a request the trusted proxy forwarded as HTTPS as secure', function () {
-        config(['trustedproxy.proxies' => ['REMOTE_ADDR']]);
+    it('treat a request Cloudflare forwarded as HTTPS as secure', function () {
+        config(['laravelcloudflare.enabled' => true]);
+        Http::fake([
+            'www.cloudflare.com/ips-v4' => Http::response("103.21.244.0/22\n"),
+            'www.cloudflare.com/ips-v6' => Http::response("2606:4700::/32\n"),
+        ]);
 
-        $this->withServerVariables(['REMOTE_ADDR' => '100.64.0.7'])
+        $this->withServerVariables(['REMOTE_ADDR' => '103.21.244.5'])
             ->withHeaders(['X-Forwarded-Proto' => 'https'])
             ->get('/')
             ->assertHeader('Strict-Transport-Security', 'max-age=31536000');
@@ -96,26 +99,5 @@ describe('session cookie', function () {
     it('is http-only and same-site by default', function () {
         expect(config('session.http_only'))->toBeTrue()
             ->and(config('session.same_site'))->toBe('lax');
-    });
-});
-
-describe('trusted proxies setting', function () {
-    it('reads TRUSTED_PROXIES from the environment', function (?string $env, mixed $expected) {
-        $process = new Process(
-            [PHP_BINARY, '-r', 'require "vendor/autoload.php"; echo json_encode((require "config/trustedproxy.php")["proxies"]);'],
-            base_path(),
-            ['TRUSTED_PROXIES' => $env ?? false],
-        );
-        $process->mustRun();
-
-        expect(json_decode($process->getOutput(), true))->toBe($expected);
-    })->with([
-        'unset' => [null, null],
-        'one proxy' => ['REMOTE_ADDR', ['REMOTE_ADDR']],
-        'a range' => ['10.0.0.0/8', ['10.0.0.0/8']],
-    ]);
-
-    it('trusts nothing in the shipped test setup, like any fresh install', function () {
-        expect(config('trustedproxy.proxies'))->toBeNull();
     });
 });
