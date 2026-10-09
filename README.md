@@ -157,15 +157,14 @@ LARAVEL_CLOUDFLARE_ENABLED=false
 
 ### Deploying behind Cloudflare
 
-Rate limits and the admin login throttle work per visitor IP, and HTTPS detection comes from the `X-Forwarded-Proto` header. Both are only as honest as whoever wrote the headers, so the app **trusts no proxy unless you switch Cloudflare on**:
+Rate limits and the admin login throttle work per visitor IP, and HTTPS detection comes from the `X-Forwarded-Proto` header. Both are only as honest as whoever wrote the headers, so the app believes only the proxies that really sit in front of it (`App\Http\Middleware\TrustProxies`, the same class as in the other avstelematics apps):
 
-```env
-LARAVEL_CLOUDFLARE_ENABLED=true
-```
+- **Cloudflare**, by its published address ranges. They come from [monicahq/laravel-cloudflare](https://github.com/monicahq/laravel-cloudflare): fetched from cloudflare.com on the first request, cached, and refreshed weekly by the scheduler (`cloudflare:reload`, so `schedule:run` must be on your cron). Run `php artisan cloudflare:reload` after a deploy and after anything that clears the cache, so no visitor request has to. It is on by default; set `LARAVEL_CLOUDFLARE_ENABLED=false` to switch it off.
+- **Loopback and the server's own address**, always. Plesk runs nginx in front of Apache on the server's public address, so PHP sees the proxy as the server's *own* address, not loopback and not Cloudflare, and without this every visitor would be that one address: the contact form limits and the admin login throttle shared by everybody. A connection from the machine itself cannot have come from anywhere else, so its headers are believed; anybody else's are ignored, which makes it safe where there is no such proxy too.
 
-Leave it `false` when nothing is in front of the app (nginx/Apache on the same server, local development). It is `false` in `.env.example` because the package itself defaults to `true`.
+Nothing else is believed: with no proxy in front, a visitor could choose their own IP.
 
-Cloudflare's address ranges come from [monicahq/laravel-cloudflare](https://github.com/monicahq/laravel-cloudflare): fetched from cloudflare.com on the first request, cached, and refreshed daily by the scheduler (`cloudflare:reload`, so `schedule:run` must be on your cron). Run `php artisan cloudflare:reload` once when you deploy, so a failed fetch shows up there and not on a visitor's first request.
+Only `X-Forwarded-For` and `X-Forwarded-Proto` are taken from the proxies (`trustProxies(headers: ...)` in `bootstrap/app.php`). A forwarded host or port would let a visitor choose the site's own host in its links, so they are ignored even from a proxy that is trusted.
 
 Leave `LARAVEL_CLOUDFLARE_REPLACE_IP` off. It takes `CF-Connecting-IP` as the visitor's address from anyone, so a visitor who reaches the server directly could pick their own IP. The addresses Cloudflare puts in `X-Forwarded-For` are enough. The one setup this does not cover is a proxy that *overwrites* `X-Forwarded-For` with the Cloudflare address it saw instead of adding to it: visitors then share their Cloudflare edge's IP.
 

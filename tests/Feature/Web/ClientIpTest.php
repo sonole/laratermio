@@ -3,29 +3,35 @@
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 /*
  * `$request->ip()` has to be the visitor, and a visitor must not be able to pick their own address
- * with an `X-Forwarded-For` header. The only proxies believed are Cloudflare's, once
- * LARAVEL_CLOUDFLARE_ENABLED is on (monicahq/laravel-cloudflare), and whatever the app names
- * itself through Laravel's `trustProxies(at: ...)`.
+ * with an `X-Forwarded-For` header. The only proxies believed are Cloudflare's (monicahq/laravel-cloudflare,
+ * from the cache), loopback and the server's own address (App\Http\Middleware\TrustProxies), and
+ * whatever the app names itself through Laravel's `trustProxies(at: ...)`.
  */
 
 /** The address of a proxy in front of the app, other than Cloudflare. */
 const WEB_HOP = '100.64.0.7';
 const WEB_CLOUDFLARE_EDGE = '103.21.244.5';
 
+/** The server's own public address (documentation range): what PHP sees as the peer on Plesk. */
+const WEB_OWN_ADDRESS = '192.0.2.10';
+
 beforeEach(function () {
     Route::get('/_client-ip', fn (Request $request) => $request->ip());
     Route::get('/_scheme', fn (Request $request) => $request->getScheme());
+    Route::get('/_host', fn (Request $request) => $request->getHost().':'.$request->getPort());
 });
 
 /** Switch Cloudflare on, with its published list faked and shortened to the ranges these tests use. */
 function webEnableCloudflare(): void
 {
     config(['laravelcloudflare.enabled' => true]);
+    Cache::forget((string) config('laravelcloudflare.cache'));
 
     Http::fake([
         'www.cloudflare.com/ips-v4' => Http::response("103.21.244.0/22\n173.245.48.0/20\n"),
@@ -33,17 +39,19 @@ function webEnableCloudflare(): void
     ]);
 }
 
-function webClientIp(array $headers, string $from = WEB_HOP): string
+function webClientIp(array $headers, string $from = WEB_HOP, array $server = []): string
 {
     return test()
-        ->withServerVariables(['REMOTE_ADDR' => $from])
+        ->withServerVariables(['REMOTE_ADDR' => $from, ...$server])
         ->withHeaders($headers)
         ->get('/_client-ip')
         ->assertOk()
         ->getContent();
 }
 
-describe('with no proxy in front (the default)', function () {
+describe('with Cloudflare switched off and no other proxy in front (LARAVEL_CLOUDFLARE_ENABLED=false)', function () {
+    beforeEach(fn () => config(['laravelcloudflare.enabled' => false]));
+
     it('is the connecting address, whatever the visitor writes in X-Forwarded-For', function () {
         expect(webClientIp(['X-Forwarded-For' => '6.6.6.6'], from: '198.51.100.7'))->toBe('198.51.100.7');
     });
@@ -68,7 +76,7 @@ describe('with no proxy in front (the default)', function () {
     });
 });
 
-describe('Cloudflare straight to the server (LARAVEL_CLOUDFLARE_ENABLED=true)', function () {
+describe('Cloudflare straight to the server (the default)', function () {
     beforeEach(fn () => webEnableCloudflare());
 
     it('is the visitor Cloudflare reports', function () {
@@ -115,14 +123,14 @@ describe('Cloudflare straight to the server (LARAVEL_CLOUDFLARE_ENABLED=true)', 
         Http::assertSentCount(2); // one request for the IPv4 list and one for the IPv6 list
     });
 
-    it('refreshes the ranges every day', function () {
+    it('refreshes the ranges every Monday morning', function () {
         // The schedule is registered when the console starts, so start it before looking.
         $this->artisan('schedule:list')->expectsOutputToContain('cloudflare:reload')->assertSuccessful();
 
         $event = collect(app(Schedule::class)->events())
             ->first(fn ($event) => str_contains($event->command, 'cloudflare:reload'));
 
-        expect($event->expression)->toBe('0 0 * * *');
+        expect($event->expression)->toBe('17 6 * * 1');
     });
 });
 
@@ -143,5 +151,79 @@ describe('Cloudflare, then a proxy named with trustProxies(at: ...)', function (
             ->withHeaders(['X-Forwarded-Proto' => 'https'])
             ->get('/_scheme')
             ->assertSee('https');
+    });
+});
+
+describe('nginx on the same machine (Plesk)', function () {
+    beforeEach(fn () => webEnableCloudflare());
+
+    it('is the visitor when PHP sees the server itself as the peer', function () {
+        $ip = webClientIp(
+            ['X-Forwarded-For' => '6.6.6.6, 203.0.113.9, '.WEB_CLOUDFLARE_EDGE],
+            from: WEB_OWN_ADDRESS,
+            server: ['SERVER_ADDR' => WEB_OWN_ADDRESS],
+        );
+
+        expect($ip)->toBe('203.0.113.9');
+    });
+
+    it('is the visitor when PHP sees loopback as the peer', function () {
+        expect(webClientIp(['X-Forwarded-For' => '6.6.6.6, 203.0.113.9, '.WEB_CLOUDFLARE_EDGE], from: '127.0.0.1'))->toBe('203.0.113.9');
+    });
+
+    it('does not believe a forwarded host or port, even from a proxy it trusts', function () {
+        $peers = [
+            'nginx on loopback' => ['127.0.0.1', []],
+            'a Cloudflare edge' => [WEB_CLOUDFLARE_EDGE, []],
+            'the server itself' => [WEB_OWN_ADDRESS, ['SERVER_ADDR' => WEB_OWN_ADDRESS]],
+        ];
+
+        foreach ($peers as $label => [$from, $server]) {
+            $seen = $this->withServerVariables(['REMOTE_ADDR' => $from, ...$server])
+                ->withHeaders(['X-Forwarded-Host' => 'evil.example', 'X-Forwarded-Port' => '8080'])
+                ->get('/_host')
+                ->assertOk()
+                ->getContent();
+
+            // The request's own host and port (the test client's), whatever the forwarded headers say.
+            expect($seen)->toBe('localhost:80', $label);
+        }
+    });
+
+    it('believes the scheme the server itself forwards', function () {
+        $this->withServerVariables(['REMOTE_ADDR' => WEB_OWN_ADDRESS, 'SERVER_ADDR' => WEB_OWN_ADDRESS])
+            ->withHeaders(['X-Forwarded-Proto' => 'https'])
+            ->get('/_scheme')
+            ->assertSee('https');
+    });
+
+    it('believes nobody else, even when the same headers arrive', function () {
+        $ip = webClientIp(
+            ['X-Forwarded-For' => '6.6.6.6, 203.0.113.9'],
+            from: '198.51.100.4',
+            server: ['SERVER_ADDR' => WEB_OWN_ADDRESS],
+        );
+
+        expect($ip)->toBe('198.51.100.4');
+    });
+
+    it('does not carry over to a later request from another address', function () {
+        webClientIp(['X-Forwarded-For' => '203.0.113.9, '.WEB_CLOUDFLARE_EDGE], from: WEB_OWN_ADDRESS, server: ['SERVER_ADDR' => WEB_OWN_ADDRESS]);
+
+        $ip = webClientIp(['X-Forwarded-For' => '6.6.6.6'], from: WEB_OWN_ADDRESS, server: ['SERVER_ADDR' => '192.0.2.99']);
+
+        expect($ip)->toBe(WEB_OWN_ADDRESS);
+    });
+
+    it('is still believed when Cloudflare is switched off', function () {
+        config(['laravelcloudflare.enabled' => false]);
+
+        $ip = webClientIp(
+            ['X-Forwarded-For' => '203.0.113.9'],
+            from: WEB_OWN_ADDRESS,
+            server: ['SERVER_ADDR' => WEB_OWN_ADDRESS],
+        );
+
+        expect($ip)->toBe('203.0.113.9');
     });
 });
